@@ -62,10 +62,65 @@ type singleMail struct {
 	Subject  string `json:"subject"`
 }
 
+func (sm *singleMail) SetDate(date string) {
+	sm.Date = date
+}
+
+func (sm *singleMail) SetTime(time string) {
+	sm.Time = time
+}
+
+func (sm *singleMail) SetFrom(from string) {
+	sm.From = from
+	fromParts := strings.Split(from, `@`)
+	sm.HostFrom = fromParts[1]
+	sm.UserFrom = fromParts[0]
+}
+
+func (sm *singleMail) SetTo(to string) {
+	sm.To = to
+	toParts := strings.Split(to, `@`)
+	sm.HostTo = toParts[1]
+	sm.UserTo = toParts[0]
+}
+
+func (sm *singleMail) SetSubject(subject string) {
+	sm.Subject = subject
+}
+
+func (sm *singleMail) SetSize(size string) {
+	mailSize, mailSizeErr := strconv.Atoi(size)
+	if mailSizeErr != nil {
+		sm.Size = -1
+	}
+	sm.Size = mailSize
+}
+
+func (sm *singleMail) SetQueueID(queueID string) {
+	sm.QueueID = queueID
+}
+
 func (sm *singleMail) GenerateMailID() {
 	idString := fmt.Sprintf("%s %s %s %s %s", sm.QueueID, sm.Date, sm.Time, sm.From, sm.To)
 	mailID := sha256.Sum256([]byte(idString))
 	sm.MailID = fmt.Sprintf("%x", mailID)
+}
+
+func (sm *singleMail) GetPartnerKey() string {
+	commPartnerA := sm.From
+	commPartnerB := sm.To
+
+	if sm.HostFrom == sm.HostTo {
+		if sm.From > sm.To {
+			commPartnerA = sm.To
+			commPartnerB = sm.From
+		}
+	} else if sm.HostFrom > sm.HostTo {
+		commPartnerA = sm.To
+		commPartnerB = sm.From
+	}
+
+	return fmt.Sprintf("%s %s", commPartnerA, commPartnerB)
 }
 
 type mailData struct {
@@ -73,20 +128,7 @@ type mailData struct {
 }
 
 func (md *mailData) Append(mail singleMail) {
-	commPartnerA := mail.From
-	commPartnerB := mail.To
-
-	if mail.HostFrom == mail.HostTo {
-		if mail.From > mail.To {
-			commPartnerA = mail.To
-			commPartnerB = mail.From
-		}
-	} else if mail.HostFrom > mail.HostTo {
-		commPartnerA = mail.To
-		commPartnerB = mail.From
-	}
-
-	partnerIndex := fmt.Sprintf("%s %s", commPartnerA, commPartnerB)
+	partnerIndex := mail.GetPartnerKey()
 	if _, ok := md.Partner[partnerIndex]; !ok {
 		md.Partner = make(map[string][]singleMail)
 	}
@@ -143,23 +185,13 @@ func parseLogLine(line string) (singleMail, error) {
 	var mail singleMail
 
 	dateTime := reDateTime.FindStringSubmatch(line)
-	mail.Date = strings.ReplaceAll(dateTime[1], `:`, `-`)
-	mail.Time = dateTime[2]
-	mail.From = reFrom.FindStringSubmatch(line)[1]
-	fromParts := strings.Split(mail.From, `@`)
-	mail.HostFrom = fromParts[1]
-	mail.UserFrom = fromParts[0]
-	mail.To = reTo.FindStringSubmatch(line)[1]
-	toParts := strings.Split(mail.To, `@`)
-	mail.HostTo = toParts[1]
-	mail.UserTo = toParts[0]
-	mail.Subject = reSubject.FindStringSubmatch(line)[1]
-	mailSize, mailSizeErr := strconv.Atoi(reSize.FindStringSubmatch(line)[1])
-	if mailSizeErr != nil {
-		return mail, fmt.Errorf("Could not convert mail size to integer: %s", mailSizeErr)
-	}
-	mail.Size = mailSize
-	mail.QueueID = reQueueID.FindStringSubmatch(line)[1]
+	mail.SetDate(strings.ReplaceAll(dateTime[1], `:`, `-`))
+	mail.SetTime(dateTime[2])
+	mail.SetFrom(reFrom.FindStringSubmatch(line)[1])
+	mail.SetTo(reTo.FindStringSubmatch(line)[1])
+	mail.SetSubject(reSubject.FindStringSubmatch(line)[1])
+	mail.SetSize(reSize.FindStringSubmatch(line)[1])
+	mail.SetQueueID(reQueueID.FindStringSubmatch(line)[1])
 	mail.GenerateMailID()
 
 	return mail, nil
