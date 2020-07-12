@@ -155,22 +155,13 @@ func (mp *mailPartner) AddMail(mail singleMail) {
 }
 
 type mailData struct {
-	//Partner map[string][]singleMail `json:"partners"`
 	Partner map[string]mailPartner `json:"partners"`
 }
 
-/*
 func (md *mailData) Append(mail singleMail) {
 	partnerIndex := mail.GetPartnerKey()
-	if _, ok := md.Partner[partnerIndex]; !ok {
-		md.Partner = make(map[string][]singleMail)
-	}
-	md.Partner[partnerIndex] = append(md.Partner[partnerIndex], mail)
-}
-*/
-func (md *mailData) Append(mail singleMail) {
-	partnerIndex := mail.GetPartnerKey()
-	if _, ok := md.Partner[partnerIndex]; !ok {
+	fmt.Println(partnerIndex)
+	if md.Partner == nil {
 		md.Partner = make(map[string]mailPartner)
 	}
 	partner := md.Partner[partnerIndex]
