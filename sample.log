@@ -1,0 +1,14 @@
+2019:06:10-11:04:40 defense exim-in[6854]: 2019-06-10 11:04:40 SMTP connection from [ip1.ip2.ip3.ip4]:53500 (TCP/IP connection count = 1)
+2019:06:10-11:04:40 defense exim-in[9103]: 2019-06-10 11:04:40 H=server.serverdomain.tld [ip1.ip2.ip3.ip4]:53500 Warning: targetdomain.tld profile excludes greylisting: Skipping greylisting for this message
+2019:06:10-11:04:40 defense exim-in[9103]: 2019-06-10 11:04:40 [ip1.ip2.ip3.ip4] F=<SRS0=tyYMsf=UJ=senderdomain.tld=sendinguser@forwardingdomain.tld> R=<targetuser@targetdomain.tld> Accepted: from relay
+2019:06:10-11:04:40 defense exim-in[9103]: 2019-06-10 11:04:40 1haLqi-0002Mp-2G DKIM: d=senderdomain.tld s=dkim c=relaxed/relaxed a=rsa-sha256 [verification succeeded]
+2019:06:10-11:04:41 defense exim-in[9103]: 2019-06-10 11:04:41 1haLqi-0002Mp-2G ctasd reports 'Unknown' RefID:str=0001.0A090201.5CFE7189.0011,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+2019:06:10-11:04:41 defense exim-in[9103]: 2019-06-10 11:04:41 1haLqi-0002Mp-2G <= SRS0=tyYMsf=UJ=senderdomain.tld=sendinguser@forwardingdomain.tld H=server.serverdomain.tld [ip1.ip2.ip3.ip4]:53500 P=esmtps X=TLSv1.2:DHE-RSA-AES256-GCM-SHA384:256 S=67579 id=02ec01d51f9d$d1192430$734b6c90$@senderdomain.tld
+2019:06:10-11:04:41 defense exim-in[9103]: 2019-06-10 11:04:41 SMTP connection from server.serverdomain.tld [ip1.ip2.ip3.ip4]:53500 closed by QUIT
+2019:06:10-11:04:43 defense smtpd[6746]: QMGR[6746]: 1haLqi-0002Mp-2G moved to work queue
+2019:06:10-11:04:43 defense smtpd[9095]: SCANNER[9095]: 1haLql-0002Mh-MA <= sendinguser@senderdomain.tld R=1haLqi-0002Mp-2G P=INPUT S=63168
+2019:06:10-11:04:43 defense smtpd[9095]: SCANNER[9095]: id="1000" severity="info" sys="SecureMail" sub="smtp" name="email passed" srcip="ip1.ip2.ip3.ip4" from="sendinguser@senderdomain.tld" to="targetuser@targetdomain.tld" subject="Statement" queueid="1haLql-0002Mh-MA" size="63168"
+2019:06:10-11:04:43 defense smtpd[9095]: SCANNER[9095]: 1haLqi-0002Mp-2G => work R=SCANNER T=SCANNER
+2019:06:10-11:04:43 defense smtpd[9095]: SCANNER[9095]: 1haLqi-0002Mp-2G Completed
+2019:06:10-11:04:44 defense exim-out[9113]: 2019-06-10 11:04:44 1haLql-0002Mh-MA => targetuser@targetdomain.tld P=<sendinguser@senderdomain.tld> R=static_route_hostlist T=static_smtp H=192.168.99.3 [192.168.99.3]:25 X=TLSv1.2:AES128-SHA256:128 C="250 2.6.0 <02ec01d51f9d$d1192430$734b6c90$@senderdomain.tld> [InternalId=27538] Queued mail for delivery"
+2019:06:10-11:04:44 defense exim-out[9113]: 2019-06-10 11:04:44 1haLql-0002Mh-MA Completed

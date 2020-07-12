@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bufio"
+	"crypto/sha256"
 	"fmt"
 	"log"
 	"os"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
 
 	pflag "github.com/spf13/pflag"
@@ -40,25 +44,52 @@ func (oa *stringArray) Type() string {
 	return "string"
 }
 
+type singleMail struct {
+	MailID   string `json:"mailID"`
+	QueueID  string `json:"queueID"`
+	Date     string `json:"date"`
+	Time     string `json:"time"`
+	From     string `json:"from"`
+	HostFrom string `json:"hostFrom"`
+	UserFrom string `json:"userFrom"`
+	TypeFrom string `json:"typeFrom"`
+	To       string `json:"to"`
+	HostTo   string `json:"hostTo"`
+	UserTo   string `json:"userTo"`
+	TypeTo   string `json:"typeTo"`
+	Size     int    `json:"size"`
+	Subject  string `json:"subject"`
+}
+
+func (sm *singleMail) GenerateMailID() {
+	idString := fmt.Sprintf("%s %s %s %s %s", sm.QueueID, sm.Date, sm.Time, sm.From, sm.To)
+	mailID := sha256.Sum256([]byte(idString))
+	sm.MailID = fmt.Sprintf("%x", mailID)
+}
+
 type mailData struct {
 	Mails []struct {
-		MailPartners []struct {
-			MailID      string `json:"mailID"`
-			QueueID     string `json:"queueID"`
-			Date        string `json:"date"`
-			Time        string `json:"time"`
-			MailFrom    string `json:"mailFrom"`
-			HostFrom    string `json:"hostFrom"`
-			UserFrom    string `json:"userFrom"`
-			TypeFrom    string `json:"typeFrom"`
-			MailTo      string `json:"mailTo"`
-			HostTo      string `json:"hostTo"`
-			UserTo      string `json:"userTo"`
-			TypeTo      string `json:"typeTo"`
-			MailSize    int    `json:"mailSize"`
-			MailSubject string `json:"mailSubject"`
-		} `json:"mailPartners"`
+		MailPartners []singleMail `json:"partners"`
 	} `json:"mails"`
+}
+
+func (md *mailData) Append(mail singleMail) {
+	commPartnerA := mail.From
+	commPartnerB := mail.To
+
+	if mail.HostFrom == mail.HostTo {
+		if mail.From > mail.To {
+			commPartnerA = mail.To
+			commPartnerB = mail.From
+		}
+	} else if mail.HostFrom > mail.HostTo {
+		commPartnerA = mail.To
+		commPartnerB = mail.From
+	}
+
+	partnerIndex := fmt.Sprintf("%s %s", commPartnerA, commPartnerB)
+
+	fmt.Printf("Would have appended mail to <%s>: %s\n", partnerIndex, mail)
 }
 
 type appConfig struct {
@@ -76,6 +107,13 @@ var (
 
 	stdOut = log.New(os.Stdout, "", log.LstdFlags)
 	stdErr = log.New(os.Stderr, "", log.LstdFlags)
+
+	reDateTime = regexp.MustCompile(`^(.+?)-(.+?)\s`)
+	reFrom     = regexp.MustCompile(`\sfrom="(.+?)"\s?`)
+	reTo       = regexp.MustCompile(`\sto="(.+?)"\s?`)
+	reSubject  = regexp.MustCompile(`\ssubject="(.+?)"\s?`)
+	reSize     = regexp.MustCompile(`\ssize="(.+?)"\s?`)
+	reQueueID  = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
 )
 
 func parseCLIOptions() {
@@ -100,8 +138,61 @@ func parseCLIOptions() {
 	pflag.Parse()
 }
 
-func parseLogFile(logfile string) {
-	stdErr.Printf(`parseLogFile("%s"): Code missing.`, logfile)
+func parseLogLine(line string) (singleMail, error) {
+	var mail singleMail
+
+	dateTime := reDateTime.FindStringSubmatch(line)
+	mail.Date = strings.ReplaceAll(dateTime[1], `:`, `-`)
+	mail.Time = dateTime[2]
+	mail.From = reFrom.FindStringSubmatch(line)[1]
+	fromParts := strings.Split(mail.From, `@`)
+	mail.HostFrom = fromParts[1]
+	mail.UserFrom = fromParts[0]
+	mail.To = reTo.FindStringSubmatch(line)[1]
+	toParts := strings.Split(mail.To, `@`)
+	mail.HostTo = toParts[1]
+	mail.UserTo = toParts[0]
+	mail.Subject = reSubject.FindStringSubmatch(line)[1]
+	mailSize, mailSizeErr := strconv.Atoi(reSize.FindStringSubmatch(line)[1])
+	if mailSizeErr != nil {
+		return mail, fmt.Errorf("Could not convert mail size to integer: %s", mailSizeErr)
+	}
+	mail.Size = mailSize
+	mail.QueueID = reQueueID.FindStringSubmatch(line)[1]
+	mail.GenerateMailID()
+
+	return mail, nil
+}
+
+func parseLogFile(logfile string) error {
+	file, fileErr := os.Open(logfile)
+	if fileErr != nil {
+		return fmt.Errorf("Failed to open file: %s", fileErr)
+	}
+	defer file.Close()
+
+	fileScanner := bufio.NewScanner(file)
+	for fileScanner.Scan() {
+		line := fileScanner.Text()
+		if !strings.Contains(line, `smtpd[`) {
+			continue
+		}
+		if !strings.Contains(line, `name="email passed"`) {
+			continue
+		}
+		if !strings.Contains(line, `id="1000"`) {
+			continue
+		}
+		mail, mailErr := parseLogLine(line)
+		if mailErr != nil {
+			stdErr.Printf("Skipping mail: %s", mailErr)
+			continue
+		}
+		//fmt.Printf("%s\n", mail)
+		mails.Append(mail)
+	}
+
+	return nil
 }
 
 func main() {
@@ -120,7 +211,10 @@ func main() {
 	}
 
 	for _, logfile := range config.LogFiles {
-		parseLogFile(logfile)
+		parseErr := parseLogFile(logfile)
+		if parseErr != nil {
+			stdOut.Println(parseErr)
+		}
 	}
 
 	stdErr.Println("main(): Code missing.")
