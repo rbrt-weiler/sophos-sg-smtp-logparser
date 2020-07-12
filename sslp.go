@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -58,7 +59,7 @@ type singleMail struct {
 	HostTo   string `json:"hostTo"`
 	UserTo   string `json:"userTo"`
 	TypeTo   string `json:"typeTo"`
-	Size     int    `json:"size"`
+	Size     int64  `json:"size"`
 	Subject  string `json:"subject"`
 }
 
@@ -70,11 +71,19 @@ func (sm *singleMail) SetTime(time string) {
 	sm.Time = time
 }
 
+func (sm *singleMail) GetHostType(host string) string {
+	if sort.SearchStrings(strings.Split(config.InternalHosts.String(), ","), host) == 0 {
+		return "internal"
+	}
+	return "external"
+}
+
 func (sm *singleMail) SetFrom(from string) {
 	sm.From = from
 	fromParts := strings.Split(from, `@`)
 	sm.HostFrom = fromParts[1]
 	sm.UserFrom = fromParts[0]
+	sm.TypeFrom = sm.GetHostType(sm.HostFrom)
 }
 
 func (sm *singleMail) SetTo(to string) {
@@ -82,6 +91,7 @@ func (sm *singleMail) SetTo(to string) {
 	toParts := strings.Split(to, `@`)
 	sm.HostTo = toParts[1]
 	sm.UserTo = toParts[0]
+	sm.TypeTo = sm.GetHostType(sm.HostTo)
 }
 
 func (sm *singleMail) SetSubject(subject string) {
@@ -93,7 +103,7 @@ func (sm *singleMail) SetSize(size string) {
 	if mailSizeErr != nil {
 		sm.Size = -1
 	}
-	sm.Size = mailSize
+	sm.Size = int64(mailSize)
 }
 
 func (sm *singleMail) SetQueueID(queueID string) {
@@ -124,28 +134,54 @@ func (sm *singleMail) GetPartnerKey() string {
 }
 
 type mailStats struct {
-	MailsTotal uint `json:"mailsTotal"`
-	SizeTotal  uint `json:"sizeTotal"`
-	CountAtoB  uint `json:"countAtoB"`
-	SizeAtoB   uint `json:"sizeAtoB"`
-	CountBtoA  uint `json:"countBtoA"`
-	SizeBtoA   uint `json:"sizeBtoA"`
+	PartnerA   string `json:"partnerA"`
+	PartnerB   string `json:"partnerB"`
+	MailsTotal int64  `json:"mailsTotal"`
+	SizeTotal  int64  `json:"sizeTotal"`
+	CountAtoB  int64  `json:"countAtoB"`
+	SizeAtoB   int64  `json:"sizeAtoB"`
+	CountBtoA  int64  `json:"countBtoA"`
+	SizeBtoA   int64  `json:"sizeBtoA"`
 }
 
 func (ms *mailStats) Add(singleMail) {
 	fmt.Println("Would add to statistics now.")
 }
 
-type mailData struct {
-	Partner map[string][]singleMail `json:"partners"`
+type mailPartner struct {
+	Mails []singleMail `json:"mails"`
+	Stats mailStats    `json:"stats"`
 }
 
+func (mp *mailPartner) AddMail(mail singleMail) {
+	mp.Mails = append(mp.Mails, mail)
+	mp.Stats.MailsTotal++
+	mp.Stats.SizeTotal = mp.Stats.SizeTotal + mail.Size
+	// TODO: handle stats update correctly
+}
+
+type mailData struct {
+	//Partner map[string][]singleMail `json:"partners"`
+	Partner map[string]mailPartner `json:"partners"`
+}
+
+/*
 func (md *mailData) Append(mail singleMail) {
 	partnerIndex := mail.GetPartnerKey()
 	if _, ok := md.Partner[partnerIndex]; !ok {
 		md.Partner = make(map[string][]singleMail)
 	}
 	md.Partner[partnerIndex] = append(md.Partner[partnerIndex], mail)
+}
+*/
+func (md *mailData) Append(mail singleMail) {
+	partnerIndex := mail.GetPartnerKey()
+	if _, ok := md.Partner[partnerIndex]; !ok {
+		md.Partner = make(map[string]mailPartner)
+	}
+	partner := md.Partner[partnerIndex]
+	partner.AddMail(mail)
+	md.Partner[partnerIndex] = partner
 }
 
 type appConfig struct {
