@@ -118,7 +118,6 @@ var (
 )
 
 func parseCLIOptions() {
-	pflag.VarP(&config.LogFiles, "logfile", "l", "Logfile to parse")
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.VarP(&config.OutFiles, "outfile", "o", "File to write results to")
 	pflag.StringVarP(&config.Delimiter, "delimiter", "d", ",", "Delimiter to use in CSV output")
@@ -130,13 +129,14 @@ func parseCLIOptions() {
 		fmt.Fprintf(os.Stderr, "\n")
 		fmt.Fprintf(os.Stderr, "This tool parses a number of Sophos SMTP logfiles.\n")
 		fmt.Fprintf(os.Stderr, "\n")
-		fmt.Fprintf(os.Stderr, "Usage: %s [options]\n", path.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] logfile...\n", path.Base(os.Args[0]))
 		fmt.Fprintf(os.Stderr, "\n")
 		fmt.Fprintf(os.Stderr, "Available options:\n")
 		pflag.PrintDefaults()
 		os.Exit(errUsage)
 	}
 	pflag.Parse()
+	config.LogFiles = pflag.Args()
 }
 
 func parseLogLine(line string) (singleMail, error) {
