@@ -12,7 +12,8 @@ Internal data structure:
 ```json
 {
     "user@hostA user@hostB": {
-        "queueIDX": {
+        "mailID1": {
+            "queueID": "abc123",
             "date": "2006-01-02",
             "time": "15:34:56",
             "mailFrom": "user@hostA",
@@ -24,9 +25,10 @@ Internal data structure:
             "userTo": "user",
             "typeTo": "external",
             "mailSize": 12345,
-            "subject": "Lorem ipsum"
+            "mailSubject": "Lorem ipsum"
         },
-        "queueIDY": {
+        "mailID2": {
+            "queueID": "def456",
             "date": "2006-01-02",
             "time": "16:34:56",
             "mailFrom": "user@hostB",
@@ -38,9 +40,10 @@ Internal data structure:
             "userTo": "user",
             "typeTo": "internal",
             "mailSize": 678,
-            "subject": "Re: Lorem ipsum"
+            "mailSubject": "Re: Lorem ipsum"
         },
-        "queueIDZ": {
+        "mailID3": {
+            "queueID": "ghi789",
             "date": "2006-01-02",
             "time": "17:34:56",
             "mailFrom": "user@hostA",
@@ -52,11 +55,12 @@ Internal data structure:
             "userTo": "user",
             "typeTo": "external",
             "mailSize": 9012,
-            "subject": "Re: Re: Lorem ipsum"
+            "mailSubject": "Re: Re: Lorem ipsum"
         }
     },
     "user@hostA user@hostC": {
-        "queueIDP": {
+        "mailID4": {
+            "queueID": "jkl012",
             "date": "2006-01-03",
             "time": "14:34:56",
             "mailFrom": "user@hostA",
@@ -68,13 +72,14 @@ Internal data structure:
             "userTo": "user",
             "typeTo": "external",
             "mailSize": 34567,
-            "subject": "Dolor sit amet"
+            "mailSubject": "Dolor sit amet"
         }
     }
 }
 ```
 
-Key "user@hostA user@hostC" is sorted by host part; if the hosts are equal, the key is sorted by full address.
+Key "user@hostA user@hostC" is sorted by host part; if the hosts are equal, the key is sorted by full address.  
+Key "mailID4" formed by SHA'ing "queueID date time mailFrom mailTo".
 
 CLI arguments:
 
