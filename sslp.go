@@ -71,13 +71,6 @@ func (sm *singleMail) SetTime(time string) {
 	sm.Time = time
 }
 
-func (sm *singleMail) GetHostType(host string) string {
-	if sort.SearchStrings(strings.Split(config.InternalHosts.String(), ","), host) == 0 {
-		return "internal"
-	}
-	return "external"
-}
-
 func (sm *singleMail) SetFrom(from string) {
 	sm.From = from
 	fromParts := strings.Split(from, `@`)
@@ -133,30 +126,31 @@ func (sm *singleMail) GetPartnerKey() string {
 	return fmt.Sprintf("%s %s", commPartnerA, commPartnerB)
 }
 
-type mailStats struct {
-	PartnerA   string `json:"partnerA"`
-	PartnerB   string `json:"partnerB"`
-	MailsTotal int64  `json:"mailsTotal"`
-	SizeTotal  int64  `json:"sizeTotal"`
-	CountAtoB  int64  `json:"countAtoB"`
-	SizeAtoB   int64  `json:"sizeAtoB"`
-	CountBtoA  int64  `json:"countBtoA"`
-	SizeBtoA   int64  `json:"sizeBtoA"`
-}
-
-func (ms *mailStats) Add(singleMail) {
-	fmt.Println("Would add to statistics now.")
+func (sm *singleMail) GetHostType(host string) string {
+	if sort.SearchStrings(strings.Split(config.InternalHosts.String(), ","), host) == 0 {
+		return "internal"
+	}
+	return "external"
 }
 
 type mailPartner struct {
-	Mails []singleMail `json:"mails"`
-	Stats mailStats    `json:"stats"`
+	PartnerA   string       `json:"partnerA"`
+	TypeA      string       `json:"typeA"`
+	PartnerB   string       `json:"partnerB"`
+	TypeB      string       `json:"typeB"`
+	MailsTotal int64        `json:"mailsTotal"`
+	SizeTotal  int64        `json:"sizeTotal"`
+	CountAtoB  int64        `json:"countAtoB"`
+	SizeAtoB   int64        `json:"sizeAtoB"`
+	CountBtoA  int64        `json:"countBtoA"`
+	SizeBtoA   int64        `json:"sizeBtoA"`
+	Mails      []singleMail `json:"mails"`
 }
 
 func (mp *mailPartner) AddMail(mail singleMail) {
 	mp.Mails = append(mp.Mails, mail)
-	mp.Stats.MailsTotal++
-	mp.Stats.SizeTotal = mp.Stats.SizeTotal + mail.Size
+	mp.MailsTotal++
+	mp.SizeTotal = mp.SizeTotal + mail.Size
 	// TODO: handle stats update correctly
 }
 
