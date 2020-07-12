@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -68,9 +69,7 @@ func (sm *singleMail) GenerateMailID() {
 }
 
 type mailData struct {
-	Mails []struct {
-		MailPartners []singleMail `json:"partners"`
-	} `json:"mails"`
+	Partner map[string][]singleMail `json:"partners"`
 }
 
 func (md *mailData) Append(mail singleMail) {
@@ -88,8 +87,10 @@ func (md *mailData) Append(mail singleMail) {
 	}
 
 	partnerIndex := fmt.Sprintf("%s %s", commPartnerA, commPartnerB)
-
-	fmt.Printf("Would have appended mail to <%s>: %s\n", partnerIndex, mail)
+	if _, ok := md.Partner[partnerIndex]; !ok {
+		md.Partner = make(map[string][]singleMail)
+	}
+	md.Partner[partnerIndex] = append(md.Partner[partnerIndex], mail)
 }
 
 type appConfig struct {
@@ -188,7 +189,6 @@ func parseLogFile(logfile string) error {
 			stdErr.Printf("Skipping mail: %s", mailErr)
 			continue
 		}
-		//fmt.Printf("%s\n", mail)
 		mails.Append(mail)
 	}
 
@@ -216,6 +216,9 @@ func main() {
 			stdOut.Println(parseErr)
 		}
 	}
+
+	json, _ := json.MarshalIndent(mails, "", "    ")
+	fmt.Println(string(json))
 
 	stdErr.Println("main(): Code missing.")
 }
