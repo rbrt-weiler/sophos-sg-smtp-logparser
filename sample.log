@@ -12,3 +12,5 @@
 2019:06:10-11:04:43 defense smtpd[9095]: SCANNER[9095]: 1haLqi-0002Mp-2G Completed
 2019:06:10-11:04:44 defense exim-out[9113]: 2019-06-10 11:04:44 1haLql-0002Mh-MA => targetuser@targetdomain.tld P=<sendinguser@senderdomain.tld> R=static_route_hostlist T=static_smtp H=192.168.99.3 [192.168.99.3]:25 X=TLSv1.2:AES128-SHA256:128 C="250 2.6.0 <02ec01d51f9d$d1192430$734b6c90$@senderdomain.tld> [InternalId=27538] Queued mail for delivery"
 2019:06:10-11:04:44 defense exim-out[9113]: 2019-06-10 11:04:44 1haLql-0002Mh-MA Completed
+2019:06:10-11:08:45 defense smtpd[9095]: SCANNER[9095]: id="1000" severity="info" sys="SecureMail" sub="smtp" name="email passed" srcip="ip1.ip2.ip3.ip4" from="targetuser@targetdomain.tld" to="sendinguser@senderdomain.tld" subject="Re: Statement" queueid="1haLql-3000Mh-MA" size="462"
+2019:06:10-11:14:13 defense smtpd[9095]: SCANNER[9095]: id="1000" severity="info" sys="SecureMail" sub="smtp" name="email passed" srcip="ip1.ip2.ip3.ip4" from="anotheruser@senderdomain.tld" to="targetuser@targetdomain.tld" subject="Foo" queueid="1yoLql-0100Mh-MA" size="1002"
