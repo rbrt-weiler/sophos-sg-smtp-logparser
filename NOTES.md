@@ -11,75 +11,106 @@ Internal data structure:
 
 ```json
 {
-    "user@hostA user@hostB": {
-        "mailID1": {
-            "queueID": "abc123",
-            "date": "2006-01-02",
-            "time": "15:34:56",
-            "mailFrom": "user@hostA",
-            "hostFrom": "hostA",
-            "userFrom": "user",
-            "typeFrom": "internal",
-            "mailTo": "user@hostB",
-            "hostTo": "hostB",
-            "userTo": "user",
-            "typeTo": "external",
-            "mailSize": 12345,
-            "mailSubject": "Lorem ipsum"
+  "mails": [
+    {
+      "user@hostA user@hostB": [
+        {
+          "mailID": "string",
+          "queueID": "string",
+          "date": "2006-01-02",
+          "time": "15:34:56",
+          "mailFrom": "user@hostA",
+          "hostFrom": "hostA",
+          "userFrom": "user",
+          "typeFrom": "internal",
+          "mailTo": "user@hostB",
+          "hostTo": "hostB",
+          "userTo": "user",
+          "typeTo": "external",
+          "mailSize": 12345,
+          "mailSubject": "Lorem ipsum"
         },
-        "mailID2": {
-            "queueID": "def456",
-            "date": "2006-01-02",
-            "time": "16:34:56",
-            "mailFrom": "user@hostB",
-            "hostFrom": "hostB",
-            "userFrom": "user",
-            "typeFrom": "external",
-            "mailTo": "user@hostA",
-            "hostTo": "hostA",
-            "userTo": "user",
-            "typeTo": "internal",
-            "mailSize": 678,
-            "mailSubject": "Re: Lorem ipsum"
+        {
+          "mailID": "sha456",
+          "queueID": "def456",
+          "date": "2006-01-02",
+          "time": "16:34:56",
+          "mailFrom": "user@hostB",
+          "hostFrom": "hostB",
+          "userFrom": "user",
+          "typeFrom": "external",
+          "mailTo": "user@hostA",
+          "hostTo": "hostA",
+          "userTo": "user",
+          "typeTo": "internal",
+          "mailSize": 678,
+          "mailSubject": "Re: Lorem ipsum"
         },
-        "mailID3": {
-            "queueID": "ghi789",
-            "date": "2006-01-02",
-            "time": "17:34:56",
-            "mailFrom": "user@hostA",
-            "hostFrom": "hostA",
-            "userFrom": "user",
-            "typeFrom": "internal",
-            "mailTo": "user@hostB",
-            "hostTo": "hostB",
-            "userTo": "user",
-            "typeTo": "external",
-            "mailSize": 9012,
-            "mailSubject": "Re: Re: Lorem ipsum"
+        {
+          "mailID": "sha789",
+          "queueID": "ghi789",
+          "date": "2006-01-02",
+          "time": "17:34:56",
+          "mailFrom": "user@hostA",
+          "hostFrom": "hostA",
+          "userFrom": "user",
+          "typeFrom": "internal",
+          "mailTo": "user@hostB",
+          "hostTo": "hostB",
+          "userTo": "user",
+          "typeTo": "external",
+          "mailSize": 9012,
+          "mailSubject": "Re: Re: Lorem ipsum"
         }
-    },
-    "user@hostA user@hostC": {
-        "mailID4": {
-            "queueID": "jkl012",
-            "date": "2006-01-03",
-            "time": "14:34:56",
-            "mailFrom": "user@hostA",
-            "hostFrom": "hostA",
-            "userFrom": "user",
-            "typeFrom": "internal",
-            "mailTo": "user@hostC",
-            "hostTo": "hostC",
-            "userTo": "user",
-            "typeTo": "external",
-            "mailSize": 34567,
-            "mailSubject": "Dolor sit amet"
+      ],
+      "user@hostA user@hostC": [
+        {
+          "mailID": "sha012",
+          "queueID": "jkl012",
+          "date": "2006-01-03",
+          "time": "14:34:56",
+          "mailFrom": "user@hostA",
+          "hostFrom": "hostA",
+          "userFrom": "user",
+          "typeFrom": "internal",
+          "mailTo": "user@hostC",
+          "hostTo": "hostC",
+          "userTo": "user",
+          "typeTo": "external",
+          "mailSize": 34567,
+          "mailSubject": "Dolor sit amet"
         }
+      ]
     }
+  ]
 }
 ```
 
-Key "user@hostA user@hostC" is sorted by host part; if the hosts are equal, the key is sorted by full address.  
-Key "mailID4" formed by SHA'ing "queueID date time mailFrom mailTo".
+```golang
+type MailData struct {
+    Mails []struct {
+        MailPartners []struct {
+            MailID      string `json:"mailID"`
+            QueueID     string `json:"queueID"`
+            Date        string `json:"date"`
+            Time        string `json:"time"`
+            MailFrom    string `json:"mailFrom"`
+            HostFrom    string `json:"hostFrom"`
+            UserFrom    string `json:"userFrom"`
+            TypeFrom    string `json:"typeFrom"`
+            MailTo      string `json:"mailTo"`
+            HostTo      string `json:"hostTo"`
+            UserTo      string `json:"userTo"`
+            TypeTo      string `json:"typeTo"`
+            MailSize    int    `json:"mailSize"`
+            MailSubject string `json:"mailSubject"`
+        } `json:"mailPartners"`
+    } `json:"mails"`
+}
+```
+
+Key `MailPartners` is sorted by host part; if the hosts are equal, the key is sorted by full address.  
+Key `MailID` is formed by SHA'ing `queueID date time mailFrom mailTo`.
 
 CLI arguments:
 
@@ -91,6 +122,6 @@ CLI arguments:
 * `delimiter "string"`: delimiter to use in CSV output; defaults to ","
 * `compress`: if set, CSV and JSON output will be gzip compressed
 
-CSV output limited to "type,fromA,mailA,mailB,fromB", where type is "i2i", "i2e", "e2i" or "e2e". Sorted by mailA.  
+CSV output limited to "type,fromA,mailA,mailB,fromB", where type is "i2i", "i2e", "e2i" or "e2e" (i for internal, e for external). Eventually sorted by mailA.  
 XLSX output will probable contain the same information as CSV. Depends on testing.  
 JSON output will contain the whole data structure, so that follow up code can work with it.
