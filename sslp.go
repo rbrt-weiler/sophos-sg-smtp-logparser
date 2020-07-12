@@ -123,6 +123,19 @@ func (sm *singleMail) GetPartnerKey() string {
 	return fmt.Sprintf("%s %s", commPartnerA, commPartnerB)
 }
 
+type mailStats struct {
+	MailsTotal uint `json:"mailsTotal"`
+	SizeTotal  uint `json:"sizeTotal"`
+	CountAtoB  uint `json:"countAtoB"`
+	SizeAtoB   uint `json:"sizeAtoB"`
+	CountBtoA  uint `json:"countBtoA"`
+	SizeBtoA   uint `json:"sizeBtoA"`
+}
+
+func (ms *mailStats) Add(singleMail) {
+	fmt.Println("Would add to statistics now.")
+}
+
 type mailData struct {
 	Partner map[string][]singleMail `json:"partners"`
 }
