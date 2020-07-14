@@ -135,16 +135,49 @@ func (sm *singleMail) GetHostType(host string) string {
 
 type mailPartner struct {
 	PartnerA   string       `json:"partnerA"`
+	UserA      string       `json:"userA"`
+	HostA      string       `json:"hostA"`
 	TypeA      string       `json:"typeA"`
 	PartnerB   string       `json:"partnerB"`
+	UserB      string       `json:"userB"`
+	HostB      string       `json:"hostB"`
 	TypeB      string       `json:"typeB"`
 	MailsTotal int64        `json:"mailsTotal"`
 	SizeTotal  int64        `json:"sizeTotal"`
-	CountAtoB  int64        `json:"countAtoB"`
+	MailsAtoB  int64        `json:"mailsAtoB"`
 	SizeAtoB   int64        `json:"sizeAtoB"`
-	CountBtoA  int64        `json:"countBtoA"`
+	MailsBtoA  int64        `json:"mailsBtoA"`
 	SizeBtoA   int64        `json:"sizeBtoA"`
 	Mails      []singleMail `json:"mails"`
+}
+
+func (mp *mailPartner) Init(partnerIndex string) {
+	commPartners := strings.Split(partnerIndex, " ")
+	mp.PartnerA = commPartners[0]
+	mp.PartnerB = commPartners[1]
+	mp.UserA, mp.HostA = mp.SplitAddress(mp.PartnerA)
+	mp.UserB, mp.HostB = mp.SplitAddress(mp.PartnerB)
+	mp.TypeA = mp.GetHostType(mp.HostA)
+	mp.TypeB = mp.GetHostType(mp.HostB)
+	mp.MailsTotal = 0
+	mp.MailsAtoB = 0
+	mp.MailsBtoA = 0
+	mp.SizeTotal = 0
+	mp.SizeAtoB = 0
+	mp.SizeBtoA = 0
+}
+
+func (mp *mailPartner) SplitAddress(email string) (string, string) {
+	parts := strings.Split(email, "@")
+	return parts[0], parts[1]
+}
+
+func (mp *mailPartner) GetHostType(host string) string {
+	// TODO: Replace SearchStrings - "senderdomain.tldc" also matches "senderdomain.tld"
+	if sort.SearchStrings(strings.Split(config.InternalHosts.String(), ","), host) == 0 {
+		return "internal"
+	}
+	return "external"
 }
 
 func (mp *mailPartner) AddMail(mail singleMail) {
@@ -165,6 +198,9 @@ func (md *mailData) Append(mail singleMail) {
 		md.Partner = make(map[string]mailPartner)
 	}
 	partner := md.Partner[partnerIndex]
+	if partner.MailsTotal < 1 {
+		partner.Init(partnerIndex)
+	}
 	partner.AddMail(mail)
 	md.Partner[partnerIndex] = partner
 }
