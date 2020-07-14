@@ -223,6 +223,7 @@ func (md *mailData) Append(mail singleMail) {
 type appConfig struct {
 	LogFiles      stringArray
 	InternalHosts stringArray
+	OutJSON       bool
 	PrintVersion  bool
 }
 
@@ -243,6 +244,7 @@ var (
 
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
+	pflag.BoolVarP(&config.OutJSON, "json", "J", false, "Output in JSON format")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
