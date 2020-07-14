@@ -223,7 +223,6 @@ func (md *mailData) Append(mail singleMail) {
 type appConfig struct {
 	LogFiles      stringArray
 	InternalHosts stringArray
-	Delimiter     string
 	PrintVersion  bool
 }
 
@@ -244,7 +243,6 @@ var (
 
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
-	pflag.StringVarP(&config.Delimiter, "delimiter", "d", ",", "Delimiter to use in CSV output")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
