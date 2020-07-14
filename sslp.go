@@ -201,7 +201,6 @@ func (mp *mailPartner) AddMail(mail singleMail) {
 		mp.MailsBtoA++
 		mp.SizeBtoA = mp.SizeBtoA + mail.Size
 	}
-	// TODO: handle stats update correctly
 }
 
 type mailData struct {
@@ -210,7 +209,6 @@ type mailData struct {
 
 func (md *mailData) Append(mail singleMail) {
 	partnerIndex := mail.GetPartnerKey()
-	fmt.Println(partnerIndex)
 	if md.Partner == nil {
 		md.Partner = make(map[string]mailPartner)
 	}
@@ -225,7 +223,6 @@ func (md *mailData) Append(mail singleMail) {
 type appConfig struct {
 	LogFiles       stringArray
 	InternalHosts  stringArray
-	OutFiles       stringArray
 	Delimiter      string
 	CompressOutput bool
 	PrintVersion   bool
@@ -248,7 +245,6 @@ var (
 
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
-	pflag.VarP(&config.OutFiles, "outfile", "o", "File to write results to")
 	pflag.StringVarP(&config.Delimiter, "delimiter", "d", ",", "Delimiter to use in CSV output")
 	pflag.BoolVarP(&config.CompressOutput, "compress", "C", false, "Compress output using gzip")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
@@ -324,9 +320,6 @@ func main() {
 
 	if len(config.LogFiles) == 0 {
 		stdErr.Fatal("At least one logfile is required.")
-	}
-	if len(config.OutFiles) == 0 {
-		stdErr.Fatal("At least one outfile is required.")
 	}
 
 	for _, logfile := range config.LogFiles {
