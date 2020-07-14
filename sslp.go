@@ -182,10 +182,25 @@ func (mp *mailPartner) GetHostType(host string) string {
 	return "external"
 }
 
+func (mp *mailPartner) IsFromA(mail singleMail) bool {
+	return (mp.PartnerA == mail.From)
+}
+
+func (mp *mailPartner) IsFromB(mail singleMail) bool {
+	return !mp.IsFromA(mail)
+}
+
 func (mp *mailPartner) AddMail(mail singleMail) {
 	mp.Mails = append(mp.Mails, mail)
 	mp.MailsTotal++
 	mp.SizeTotal = mp.SizeTotal + mail.Size
+	if mp.IsFromA(mail) {
+		mp.MailsAtoB++
+		mp.SizeAtoB = mp.SizeAtoB + mail.Size
+	} else {
+		mp.MailsBtoA++
+		mp.SizeBtoA = mp.SizeBtoA + mail.Size
+	}
 	// TODO: handle stats update correctly
 }
 
