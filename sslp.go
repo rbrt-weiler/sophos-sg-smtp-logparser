@@ -221,11 +221,10 @@ func (md *mailData) Append(mail singleMail) {
 }
 
 type appConfig struct {
-	LogFiles       stringArray
-	InternalHosts  stringArray
-	Delimiter      string
-	CompressOutput bool
-	PrintVersion   bool
+	LogFiles      stringArray
+	InternalHosts stringArray
+	Delimiter     string
+	PrintVersion  bool
 }
 
 var (
@@ -246,7 +245,6 @@ var (
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.StringVarP(&config.Delimiter, "delimiter", "d", ",", "Delimiter to use in CSV output")
-	pflag.BoolVarP(&config.CompressOutput, "compress", "C", false, "Compress output using gzip")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
