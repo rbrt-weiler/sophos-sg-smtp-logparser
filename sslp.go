@@ -142,6 +142,7 @@ type mailPartner struct {
 	UserB      string       `json:"userB"`
 	HostB      string       `json:"hostB"`
 	TypeB      string       `json:"typeB"`
+	Type       string       `json:"type"`
 	MailsTotal int64        `json:"mailsTotal"`
 	SizeTotal  int64        `json:"sizeTotal"`
 	MailsAtoB  int64        `json:"mailsAtoB"`
@@ -159,6 +160,7 @@ func (mp *mailPartner) Init(partnerIndex string) {
 	mp.UserB, mp.HostB = mp.SplitAddress(mp.PartnerB)
 	mp.TypeA = mp.GetHostType(mp.HostA)
 	mp.TypeB = mp.GetHostType(mp.HostB)
+	mp.Type = fmt.Sprintf("%c2%c", mp.TypeA[0], mp.TypeB[0])
 	mp.MailsTotal = 0
 	mp.MailsAtoB = 0
 	mp.MailsBtoA = 0
