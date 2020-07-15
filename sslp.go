@@ -236,9 +236,9 @@ var (
 	stdErr = log.New(os.Stderr, "", log.LstdFlags)
 
 	reDateTime = regexp.MustCompile(`^(.+?)-(.+?)\s`)
-	reFrom     = regexp.MustCompile(`\sfrom="(.+?)"\s?`)
-	reTo       = regexp.MustCompile(`\sto="(.+?)"\s?`)
-	reSubject  = regexp.MustCompile(`\ssubject="(.+?)"\s?`)
+	reFrom     = regexp.MustCompile(`\sfrom="(.*?)"\s?`)
+	reTo       = regexp.MustCompile(`\sto="(.*?)"\s?`)
+	reSubject  = regexp.MustCompile(`\ssubject="(.*?)"\s?`)
 	reSize     = regexp.MustCompile(`\ssize="(.+?)"\s?`)
 	reQueueID  = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
 )
@@ -273,20 +273,18 @@ func parseLogLine(line string) (singleMail, error) {
 	if len(from) != 2 {
 		return mail, fmt.Errorf("Line could not be parsed: Empty <from>")
 	} else if !strings.Contains(from[1], "@") {
-		return mail, fmt.Errorf("Line could not be parsed: <from> is not an e-mail address")
+		return mail, fmt.Errorf("Line could not be parsed: from <%s> is not an e-mail address", from[1])
 	}
 	mail.SetFrom(from[1])
 	to := reTo.FindStringSubmatch(line)
 	if len(to) != 2 {
 		return mail, fmt.Errorf("Line could not be parsed: Empty <to>")
 	} else if !strings.Contains(to[1], "@") {
-		return mail, fmt.Errorf("Line could not be parsed: <to> is not an e-mail address")
+		return mail, fmt.Errorf("Line could not be parsed: to <%s> is not an e-mail address", to[1])
 	}
 	mail.SetTo(to[1])
 	subject := reSubject.FindStringSubmatch(line)
 	if len(subject) != 2 {
-		return mail, fmt.Errorf("Line could not be parsed: Subject missing")
-	} else if subject[1] == "" {
 		return mail, fmt.Errorf("Line could not be parsed: Subject missing")
 	}
 	mail.SetSubject(subject[1])
