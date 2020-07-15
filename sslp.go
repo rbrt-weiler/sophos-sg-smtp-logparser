@@ -309,7 +309,6 @@ func parseLogFile(logfile string) error {
 		if !strings.Contains(line, `id="1000"`) {
 			continue
 		}
-		fmt.Println(line)
 		mail, mailErr := parseLogLine(line)
 		if mailErr != nil {
 			stdErr.Printf("Skipping mail: %s", mailErr)
