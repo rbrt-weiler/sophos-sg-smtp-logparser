@@ -268,8 +268,20 @@ func parseLogLine(line string) (singleMail, error) {
 	dateTime := reDateTime.FindStringSubmatch(line)
 	mail.SetDate(strings.ReplaceAll(dateTime[1], `:`, `-`))
 	mail.SetTime(dateTime[2])
-	mail.SetFrom(reFrom.FindStringSubmatch(line)[1])
-	mail.SetTo(reTo.FindStringSubmatch(line)[1])
+	from := reFrom.FindStringSubmatch(line)
+	if len(from) != 2 {
+		return mail, fmt.Errorf("Line could not be parsed: Empty <from>")
+	} else if !strings.Contains(from[1], "@") {
+		return mail, fmt.Errorf("Line could not be parsed: <from> is not an e-mail address")
+	}
+	mail.SetFrom(from[1])
+	to := reTo.FindStringSubmatch(line)
+	if len(to) != 2 {
+		return mail, fmt.Errorf("Line could not be parsed: Empty <to>")
+	} else if !strings.Contains(to[1], "@") {
+		return mail, fmt.Errorf("Line could not be parsed: <to> is not an e-mail address")
+	}
+	mail.SetTo(to[1])
 	mail.SetSubject(reSubject.FindStringSubmatch(line)[1])
 	mail.SetSize(reSize.FindStringSubmatch(line)[1])
 	mail.SetQueueID(reQueueID.FindStringSubmatch(line)[1])
@@ -297,6 +309,7 @@ func parseLogFile(logfile string) error {
 		if !strings.Contains(line, `id="1000"`) {
 			continue
 		}
+		fmt.Println(line)
 		mail, mailErr := parseLogLine(line)
 		if mailErr != nil {
 			stdErr.Printf("Skipping mail: %s", mailErr)
