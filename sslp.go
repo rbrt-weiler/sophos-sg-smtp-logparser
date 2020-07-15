@@ -282,7 +282,13 @@ func parseLogLine(line string) (singleMail, error) {
 		return mail, fmt.Errorf("Line could not be parsed: <to> is not an e-mail address")
 	}
 	mail.SetTo(to[1])
-	mail.SetSubject(reSubject.FindStringSubmatch(line)[1])
+	subject := reSubject.FindStringSubmatch(line)
+	if len(subject) != 2 {
+		return mail, fmt.Errorf("Line could not be parsed: Subject missing")
+	} else if subject[1] == "" {
+		return mail, fmt.Errorf("Line could not be parsed: Subject missing")
+	}
+	mail.SetSubject(subject[1])
 	mail.SetSize(reSize.FindStringSubmatch(line)[1])
 	mail.SetQueueID(reQueueID.FindStringSubmatch(line)[1])
 	mail.GenerateMailID()
