@@ -175,9 +175,10 @@ func (mp *mailPartner) SplitAddress(email string) (string, string) {
 }
 
 func (mp *mailPartner) GetHostType(host string) string {
-	// TODO: Replace SearchStrings - "senderdomain.tldc" also matches "senderdomain.tld"
-	if sort.SearchStrings(strings.Split(config.InternalHosts.String(), ","), host) == 0 {
-		return "internal"
+	for _, intHost := range config.InternalHosts {
+		if intHost == host {
+			return "internal"
+		}
 	}
 	return "external"
 }
