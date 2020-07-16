@@ -75,3 +75,7 @@ func (mp *mailPartner) AddMail(mail singleMail) {
 		mp.SizeBtoA = mp.SizeBtoA + mail.Size
 	}
 }
+
+func (mp *mailPartner) ToCSV() string {
+	return fmt.Sprintf(csvFormat, mp.Type, mp.SizeAtoB, mp.MailsAtoB, mp.PartnerA, mp.PartnerB, mp.MailsBtoA, mp.SizeBtoA)
+}
