@@ -13,6 +13,16 @@ import (
 	pflag "github.com/spf13/pflag"
 )
 
+/*
+ ######   #######  ##    ##  ######  ########    ###    ##    ## ########  ######
+##    ## ##     ## ###   ## ##    ##    ##      ## ##   ###   ##    ##    ##    ##
+##       ##     ## ####  ## ##          ##     ##   ##  ####  ##    ##    ##
+##       ##     ## ## ## ##  ######     ##    ##     ## ## ## ##    ##     ######
+##       ##     ## ##  ####       ##    ##    ######### ##  ####    ##          ##
+##    ## ##     ## ##   ### ##    ##    ##    ##     ## ##   ###    ##    ##    ##
+ ######   #######  ##    ##  ######     ##    ##     ## ##    ##    ##     ######
+*/
+
 const (
 	toolName    string = "Sophos SMTP Logparser"
 	toolVersion string = "0.0.0"
@@ -25,6 +35,17 @@ const (
 	errUsage   int = 1 // Usage error
 )
 
+/*
+ ######   #######  ##    ## ######## ####  ######
+##    ## ##     ## ###   ## ##        ##  ##    ##
+##       ##     ## ####  ## ##        ##  ##
+##       ##     ## ## ## ## ######    ##  ##   ####
+##       ##     ## ##  #### ##        ##  ##    ##
+##    ## ##     ## ##   ### ##        ##  ##    ##
+ ######   #######  ##    ## ##       ####  ######
+*/
+
+// appConfig defines a storage type for global app configuration.
 type appConfig struct {
 	LogFiles      stringArray
 	InternalHosts stringArray
@@ -32,13 +53,24 @@ type appConfig struct {
 	PrintVersion  bool
 }
 
+/*
+ ######   ##        #######  ########     ###    ##          ##     ##    ###    ########   ######
+##    ##  ##       ##     ## ##     ##   ## ##   ##          ##     ##   ## ##   ##     ## ##    ##
+##        ##       ##     ## ##     ##  ##   ##  ##          ##     ##  ##   ##  ##     ## ##
+##   #### ##       ##     ## ########  ##     ## ##          ##     ## ##     ## ########   ######
+##    ##  ##       ##     ## ##     ## ######### ##           ##   ##  ######### ##   ##         ##
+##    ##  ##       ##     ## ##     ## ##     ## ##            ## ##   ##     ## ##    ##  ##    ##
+ ######   ########  #######  ########  ##     ## ########       ###    ##     ## ##     ##  ######
+*/
+
 var (
-	config appConfig
-	mails  mailData
+	config appConfig // Holds config as defined by CLI arguments.
+	mails  mailData  // Data structure for storing parsed results.
 
-	stdOut = log.New(os.Stdout, "", log.LstdFlags)
-	stdErr = log.New(os.Stderr, "", log.LstdFlags)
+	stdOut = log.New(os.Stdout, "", log.LstdFlags) // Shortcut for CLI output.
+	stdErr = log.New(os.Stderr, "", log.LstdFlags) // Shortcut for CLI output.
 
+	// Regular expressions used for parsing a single log line.
 	reDateTime = regexp.MustCompile(`^(.+?)-(.+?)\s`)
 	reFrom     = regexp.MustCompile(`\sfrom="(.*?)"\s?`)
 	reTo       = regexp.MustCompile(`\sto="(.*?)"\s?`)
@@ -47,6 +79,17 @@ var (
 	reQueueID  = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
 )
 
+/*
+ #######  ########  ######## ####  #######  ##    ##    ########     ###    ########   ######  #### ##    ##  ######
+##     ## ##     ##    ##     ##  ##     ## ###   ##    ##     ##   ## ##   ##     ## ##    ##  ##  ###   ## ##    ##
+##     ## ##     ##    ##     ##  ##     ## ####  ##    ##     ##  ##   ##  ##     ## ##        ##  ####  ## ##
+##     ## ########     ##     ##  ##     ## ## ## ##    ########  ##     ## ########   ######   ##  ## ## ## ##   ####
+##     ## ##           ##     ##  ##     ## ##  ####    ##        ######### ##   ##         ##  ##  ##  #### ##    ##
+##     ## ##           ##     ##  ##     ## ##   ###    ##        ##     ## ##    ##  ##    ##  ##  ##   ### ##    ##
+ #######  ##           ##    ####  #######  ##    ##    ##        ##     ## ##     ##  ######  #### ##    ##  ######
+*/
+
+// parseCLIOptions parses the provided CLI arguments into appConfig.
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.BoolVarP(&config.OutJSON, "json", "J", false, "Output in JSON format")
@@ -67,6 +110,17 @@ func parseCLIOptions() {
 	config.LogFiles = pflag.Args()
 }
 
+/*
+######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######
+##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ##
+##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##
+######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######
+##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ##
+##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ##
+##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
+*/
+
+// parseLogLine parses a single log line into a singleMail structure.
 func parseLogLine(line string) (singleMail, error) {
 	var mail singleMail
 
@@ -99,6 +153,7 @@ func parseLogLine(line string) (singleMail, error) {
 	return mail, nil
 }
 
+// parseLogFile goes through a logfile and applies parseLogLine for relevant lines.
 func parseLogFile(logfile string) error {
 	file, fileErr := os.Open(logfile)
 	if fileErr != nil {
@@ -128,6 +183,16 @@ func parseLogFile(logfile string) error {
 
 	return nil
 }
+
+/*
+##     ##    ###    #### ##    ##
+###   ###   ## ##    ##  ###   ##
+#### ####  ##   ##   ##  ####  ##
+## ### ## ##     ##  ##  ## ## ##
+##     ## #########  ##  ##  ####
+##     ## ##     ##  ##  ##   ###
+##     ## ##     ## #### ##    ##
+*/
 
 func main() {
 	parseCLIOptions()
