@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 
 	pflag "github.com/spf13/pflag"
@@ -222,7 +223,13 @@ func main() {
 		fmt.Println(string(json))
 	} else {
 		fmt.Printf("%s\n", csvHeader)
-		for _, mp := range mails.Partner {
+		var keys []string
+		for k := range mails.Partner {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			mp := mails.Partner[k]
 			fmt.Printf("%s\n", mp.ToCSV())
 		}
 	}
