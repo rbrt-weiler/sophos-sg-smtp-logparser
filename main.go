@@ -79,10 +79,6 @@ var (
 	reSubject  = regexp.MustCompile(`\ssubject="(.*?)"\s?`)
 	reSize     = regexp.MustCompile(`\ssize="(.+?)"\s?`)
 	reQueueID  = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
-
-	// Format strings for CSV output
-	csvHeader = "type,sizeAtoB,countAtoB,partnerA,partnerB,countBtoA,sizeBtoA"
-	csvFormat = "%s,%d,%d,%s,%s,%d,%d"
 )
 
 /*
@@ -228,7 +224,7 @@ func main() {
 		json, _ := json.MarshalIndent(mails, "", "    ")
 		fmt.Println(string(json))
 	} else {
-		fmt.Printf("%s\n", csvHeader)
+		fmt.Printf("%s\n", mailPartnerCSVHeader)
 		var keys []string
 		for k := range mails.Partner {
 			keys = append(keys, k)

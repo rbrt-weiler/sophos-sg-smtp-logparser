@@ -5,6 +5,12 @@ import (
 	"strings"
 )
 
+var (
+	// Format strings for CSV output
+	mailPartnerCSVHeader = "type,sizeAtoB,countAtoB,partnerA,partnerB,countBtoA,sizeBtoA,isTwoWay"
+	mailPartnerCSVFormat = "%s,%d,%d,%s,%s,%d,%d,%t"
+)
+
 // Stores all mails belonging to a conversation alogn with statistics for that conversation.
 type mailPartner struct {
 	PartnerA   string       `json:"partnerA"`
@@ -22,6 +28,7 @@ type mailPartner struct {
 	SizeAtoB   int64        `json:"sizeAtoB"`
 	MailsBtoA  int64        `json:"mailsBtoA"`
 	SizeBtoA   int64        `json:"sizeBtoA"`
+	IsTwoWay   bool         `json:"isTwoWay"`
 	Mails      []singleMail `json:"mails"`
 }
 
@@ -42,6 +49,7 @@ func (mp *mailPartner) Init(mail singleMail) {
 	mp.SizeTotal = 0
 	mp.SizeAtoB = 0
 	mp.SizeBtoA = 0
+	mp.IsTwoWay = false
 }
 
 // SplitAddress splits up the given email address into user and host parts.
@@ -72,9 +80,12 @@ func (mp *mailPartner) AddMail(mail singleMail) {
 		mp.MailsBtoA++
 		mp.SizeBtoA = mp.SizeBtoA + mail.Size
 	}
+	if mp.MailsAtoB > 0 && mp.MailsBtoA > 0 {
+		mp.IsTwoWay = true
+	}
 }
 
 // ToCSV returns a CSV representation of a mailPartner object.
 func (mp *mailPartner) ToCSV() string {
-	return fmt.Sprintf(csvFormat, mp.Type, mp.SizeAtoB, mp.MailsAtoB, mp.PartnerA, mp.PartnerB, mp.MailsBtoA, mp.SizeBtoA)
+	return fmt.Sprintf(mailPartnerCSVFormat, mp.Type, mp.SizeAtoB, mp.MailsAtoB, mp.PartnerA, mp.PartnerB, mp.MailsBtoA, mp.SizeBtoA, mp.IsTwoWay)
 }
