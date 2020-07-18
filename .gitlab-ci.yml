@@ -29,19 +29,19 @@ variables:
 
 
 .build_command: &build_command
-- go build -o binaries/SSLP ./...
+- go build -o binaries/SSSLP ./...
 
 .build_command_release: &build_command_release
-- GOOS=linux GOARCH=amd64 go build -o binaries/SSLP_${CI_COMMIT_TAG}_${CI_COMMIT_SHORT_SHA}_linux-amd64 ./...
-- GOOS=windows GOARCH=amd64 go build -o binaries/SSLP_${CI_COMMIT_TAG}_${CI_COMMIT_SHORT_SHA}_win-amd64.exe ./...
-- GOOS=darwin GOARCH=amd64 go build -o binaries/SSLP_${CI_COMMIT_TAG}_${CI_COMMIT_SHORT_SHA}_darwin-amd64 ./...
+- GOOS=linux GOARCH=amd64 go build -o binaries/SSSLP_${CI_COMMIT_TAG}_${CI_COMMIT_SHORT_SHA}_linux-amd64 ./...
+- GOOS=windows GOARCH=amd64 go build -o binaries/SSSLP_${CI_COMMIT_TAG}_${CI_COMMIT_SHORT_SHA}_win-amd64.exe ./...
+- GOOS=darwin GOARCH=amd64 go build -o binaries/SSSLP_${CI_COMMIT_TAG}_${CI_COMMIT_SHORT_SHA}_darwin-amd64 ./...
 
 .test_command: &test_command
-- ./binaries/SSLP --version
+- ./binaries/SSSLP --version
 
 .release_command: &release_command
-- rm binaries/SSLP
-- ln -s binaries SSLP_${CI_COMMIT_TAG}
+- rm binaries/SSSLP
+- ln -s binaries SSSLP_${CI_COMMIT_TAG}
 
 
 
@@ -71,7 +71,7 @@ test-master:
   artifacts:
     when: on_success
     expire_in: 30 minutes
-    name: "SSLP_${CI_COMMIT_SHORT_SHA}"
+    name: "SSSLP_${CI_COMMIT_SHORT_SHA}"
     paths:
       - binaries/*
 
@@ -115,9 +115,9 @@ deploy-tagged:
     - *release_command
   artifacts:
     when: on_success
-    name: "SSLP_${CI_COMMIT_TAG}"
+    name: "SSSLP_${CI_COMMIT_TAG}"
     paths:
-      - SSLP_${CI_COMMIT_TAG}/*
+      - SSSLP_${CI_COMMIT_TAG}/*
 
 
 
