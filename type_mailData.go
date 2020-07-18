@@ -14,7 +14,7 @@ func (md *mailData) Append(mail singleMail) {
 	}
 	partner := md.Partner[partnerIndex]
 	if partner.MailsTotal < 1 {
-		partner.Init(partnerIndex)
+		partner.Init(mail)
 	}
 	partner.AddMail(mail)
 	md.Partner[partnerIndex] = partner

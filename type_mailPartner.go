@@ -26,7 +26,8 @@ type mailPartner struct {
 }
 
 // Init initializes the statistical fields of a mailPartner obejct.
-func (mp *mailPartner) Init(partnerIndex string) {
+func (mp *mailPartner) Init(mail singleMail) {
+	partnerIndex := mail.GetPartnerKey()
 	commPartners := strings.Split(partnerIndex, " ")
 	mp.PartnerA = commPartners[0]
 	mp.PartnerB = commPartners[1]
