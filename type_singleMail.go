@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -110,8 +109,10 @@ func (sm *singleMail) GetPartnerKey() string {
 // GetHostType returns the type of a given host, either "internal" or "external".
 // Internal hosts are defined by providing the matching CLI argument; every other host is considered as external.
 func (sm *singleMail) GetHostType(host string) string {
-	if sort.SearchStrings(strings.Split(config.InternalHosts.String(), ","), host) == 0 {
-		return "internal"
+	for _, intHost := range config.InternalHosts {
+		if intHost == host {
+			return "internal"
+		}
 	}
 	return "external"
 }

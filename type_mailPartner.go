@@ -33,8 +33,8 @@ func (mp *mailPartner) Init(mail singleMail) {
 	mp.PartnerB = commPartners[1]
 	mp.UserA, mp.HostA = mp.SplitAddress(mp.PartnerA)
 	mp.UserB, mp.HostB = mp.SplitAddress(mp.PartnerB)
-	mp.TypeA = mp.GetHostType(mp.HostA)
-	mp.TypeB = mp.GetHostType(mp.HostB)
+	mp.TypeA = mail.GetHostType(mp.HostA)
+	mp.TypeB = mail.GetHostType(mp.HostB)
 	mp.Type = fmt.Sprintf("%c2%c", mp.TypeA[0], mp.TypeB[0])
 	mp.MailsTotal = 0
 	mp.MailsAtoB = 0
@@ -48,17 +48,6 @@ func (mp *mailPartner) Init(mail singleMail) {
 func (mp *mailPartner) SplitAddress(email string) (string, string) {
 	parts := strings.Split(email, "@")
 	return parts[0], parts[1]
-}
-
-// GetHostType returns the type of a given host, either "internal" or "external".
-// Internal hosts are defined by providing the matching CLI argument; every other host is considered as external.
-func (mp *mailPartner) GetHostType(host string) string {
-	for _, intHost := range config.InternalHosts {
-		if intHost == host {
-			return "internal"
-		}
-	}
-	return "external"
 }
 
 // IsFromA returns true if the given singleMail object is from PartnerA, else false.
