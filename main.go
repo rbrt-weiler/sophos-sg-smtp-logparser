@@ -244,4 +244,6 @@ func main() {
 			fmt.Printf("%s\n", mp.ToCSV())
 		}
 	}
+
+	os.Exit(errSuccess)
 }
