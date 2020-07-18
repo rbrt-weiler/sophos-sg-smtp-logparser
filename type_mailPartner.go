@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Stores all mails belonging to a conversation alogn with statistics for that conversation.
 type mailPartner struct {
 	PartnerA   string       `json:"partnerA"`
 	UserA      string       `json:"userA"`
@@ -24,6 +25,7 @@ type mailPartner struct {
 	Mails      []singleMail `json:"mails"`
 }
 
+// Init initializes the statistical fields of a mailPartner obejct.
 func (mp *mailPartner) Init(partnerIndex string) {
 	commPartners := strings.Split(partnerIndex, " ")
 	mp.PartnerA = commPartners[0]
@@ -41,11 +43,14 @@ func (mp *mailPartner) Init(partnerIndex string) {
 	mp.SizeBtoA = 0
 }
 
+// SplitAddress splits up the given email address into user and host parts.
 func (mp *mailPartner) SplitAddress(email string) (string, string) {
 	parts := strings.Split(email, "@")
 	return parts[0], parts[1]
 }
 
+// GetHostType returns the type of a given host, either "internal" or "external".
+// Internal hosts are defined by providing the matching CLI argument; every other host is considered as external.
 func (mp *mailPartner) GetHostType(host string) string {
 	for _, intHost := range config.InternalHosts {
 		if intHost == host {
@@ -55,14 +60,17 @@ func (mp *mailPartner) GetHostType(host string) string {
 	return "external"
 }
 
+// IsFromA returns true if the given singleMail object is from PartnerA, else false.
 func (mp *mailPartner) IsFromA(mail singleMail) bool {
 	return (mp.PartnerA == mail.From)
 }
 
+// IsFromB returns true if the given singleMail object is from PartnerB, else false.
 func (mp *mailPartner) IsFromB(mail singleMail) bool {
 	return !mp.IsFromA(mail)
 }
 
+// AddMail stores a singleMail in the mailPartner structure and updates the statistics accordingly.
 func (mp *mailPartner) AddMail(mail singleMail) {
 	mp.Mails = append(mp.Mails, mail)
 	mp.MailsTotal++
@@ -76,6 +84,7 @@ func (mp *mailPartner) AddMail(mail singleMail) {
 	}
 }
 
+// ToCSV returns a CSV representation of a mailPartner object.
 func (mp *mailPartner) ToCSV() string {
 	return fmt.Sprintf(csvFormat, mp.Type, mp.SizeAtoB, mp.MailsAtoB, mp.PartnerA, mp.PartnerB, mp.MailsBtoA, mp.SizeBtoA)
 }

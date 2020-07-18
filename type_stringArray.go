@@ -4,9 +4,10 @@ import (
 	"strings"
 )
 
+// Helper type.
 type stringArray []string
 
-// Returns a concatenated representation of all elements.
+// Returns a comma-concatenated representation of all elements.
 func (oa *stringArray) String() string {
 	return strings.Join(*oa, ",")
 }
