@@ -1,8 +1,16 @@
 package main
 
+import (
+	"time"
+)
+
 // Stores an indexed array of mailPartner objects.
 type mailData struct {
-	Partner map[string]mailPartner `json:"partners"`
+	CreateDateTime     time.Time              `json:"createDateTime"`
+	CreateDateTimeUnix int64                  `json:"createDateTimeUnix"`
+	CreateDate         string                 `json:"createDate"`
+	CreateTime         string                 `json:"createTime"`
+	Partner            map[string]mailPartner `json:"partners"`
 }
 
 // Append adds a singleMail object to the matching mailPartner object.

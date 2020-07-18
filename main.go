@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	pflag "github.com/spf13/pflag"
 )
@@ -210,6 +211,11 @@ func main() {
 	if len(config.LogFiles) == 0 {
 		stdErr.Fatal("At least one logfile is required.")
 	}
+
+	mails.CreateDateTime = time.Now()
+	mails.CreateDateTimeUnix = mails.CreateDateTime.Unix()
+	mails.CreateDate = mails.CreateDateTime.Format("2006-01-02")
+	mails.CreateTime = mails.CreateDateTime.Format("15:04:05")
 
 	for _, logfile := range config.LogFiles {
 		parseErr := parseLogFile(logfile)
