@@ -5,7 +5,7 @@ Sophos SG SMTP Logfile Parser - SSSLP - parses a number of [Sophos SG (UTM)](htt
 * CSV (the default) provides a CSV-styled list of communication partners and their associated mail volume (count and bytes). It is intended to give administrators a quick overview of the mail traffic.
 * JSON provides a very detailed representation of the e-mails sent between communication partners. It is intended to be used by another program.
 
-SSSLP aims to help administrators who are requested to analyze e-mail traffic.
+SSSLP aims to help administrators who are requested to analyze e-mail traffic. It is [fast enough](PERFORMANCE.md) to handle even large logfiles with ease.
 
 ## Usage
 
