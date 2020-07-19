@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -100,8 +101,9 @@ func parseCLIOptions() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
 		fmt.Fprintf(os.Stderr, "%s\n", toolURL)
 		fmt.Fprintf(os.Stderr, "\n")
-		fmt.Fprintf(os.Stderr, "This tool parses a number of Sophos SG SMTP logfiles and provides an\n")
-		fmt.Fprintf(os.Stderr, "overview of the e-mails sent and received. It supports two output formats:\n")
+		fmt.Fprintf(os.Stderr, "This tool parses a number of Sophos SG SMTP logfiles (uncompressed and\n")
+		fmt.Fprintf(os.Stderr, "gzip'ed) and provides an overview of the e-mails sent and received. It\n")
+		fmt.Fprintf(os.Stderr, "supports two output formats:\n")
 		fmt.Fprintf(os.Stderr, "\n")
 		fmt.Fprintf(os.Stderr, "CSV (the default) provides a CSV-styled list of communication partners\n")
 		fmt.Fprintf(os.Stderr, "and their associated mail volume (count and bytes). It is intended to\n")
@@ -166,13 +168,24 @@ func parseLogLine(line string) (singleMail, error) {
 
 // parseLogFile goes through a logfile and applies parseLogLine for relevant lines.
 func parseLogFile(logfile string) error {
+	var fileScanner *bufio.Scanner
+
 	file, fileErr := os.Open(logfile)
 	if fileErr != nil {
 		return fmt.Errorf("Failed to open file: %s", fileErr)
 	}
 	defer file.Close()
 
-	fileScanner := bufio.NewScanner(file)
+	if strings.HasSuffix(logfile, ".gz") {
+		gz, gzErr := gzip.NewReader(file)
+		if gzErr != nil {
+			return fmt.Errorf("Failed to open gzip'ed file: %s", fileErr)
+		}
+		fileScanner = bufio.NewScanner(gz)
+	} else {
+		fileScanner = bufio.NewScanner(file)
+	}
+
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
 		if !strings.Contains(line, `smtpd[`) {
