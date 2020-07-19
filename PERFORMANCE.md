@@ -1,10 +1,10 @@
 # Sophos SG SMTP Logfile Parser (SSSLP) Performance
 
-In order to get a hold of how well SSSLP performs, I ran a simple test suite. Short story: SSSLP performs well even for large logfiles.
+In order to get a hold of how well SSSLP performs I ran a simple test suite. Short story: SSSLP performs well even for large logfiles.
 
 ## Sample Logfiles
 
-For my tests, I constructed the following logfile, which mimics how an incoming mail is processed in a real logfile.
+For my tests I constructed the following logfile, which mimics how incoming mails are processed in a real logfile.
 
 ```text
 2020:07:18-16:56:31 some-sg exim-in[24020]: logfoo P=esmtp
@@ -33,7 +33,7 @@ For my tests, I constructed the following logfile, which mimics how an incoming 
 2020:07:18-16:56:31 some-sg exim-out[1422]: logfoo Completed
 ```
 
-The file above consists of 23 lines, from which 3 are actually relevant for SSSLP. In order to create larger logfiles I concatenated the file above into new files for 10, 100, 1.000, 10.000 and 100.000 times.
+The file above consists of 23 lines, from which 3 are actually relevant for SSSLP. To create larger logfiles I concatenated the file above into new files for 10, 100, 1.000, 10.000 and 100.000 times.
 
 | File | Lines Total | Relevant Lines | Bytes |
 | --- | ---:| ---:| ---:|
@@ -46,7 +46,7 @@ The file above consists of 23 lines, from which 3 are actually relevant for SSSL
 
 ## Test Procedure
 
-To measure performance, I ran the following shell script. It measures the runtime for five times, both for CSV and JSON output, but without writing SSSLP output to disk.
+To measure performance I ran the following shell script. For each logfile, it measures the runtime five times. This is done for both CSV and JSON output, but without writing SSSLP output to disk.
 
 ```bash
 #!/bin/bash
@@ -77,9 +77,9 @@ done
 
 ## Results
 
-### 2020-Jul-19, v1.0.0
+### 2020-07-19, SSSLP v1.0.0
 
-I ran the test on Jul 19th, 2020 on a shared server. 6-Core Xeon Gold 6140, 32 GB RAM and SSD-based storage as dedicated (by means of KVM) ressources. Running on 50% base CPU load due to other services. Fedora 31 with SSSLP v1.0.0.
+I ran the test on Jul 19th, 2020 on a shared server. 6-Core Xeon Gold 6140, 32 GB RAM and SSD-based storage as dedicated (by means of KVM) resources. Running on 50% base CPU load due to other services. Fedora 31 with SSSLP v1.0.0.
 
 Worst CSV mode results:
 
@@ -92,7 +92,7 @@ Worst CSV mode results:
 | sophos-sg-smtp-030000.log | 0m1.509s | 0m1.501s | 0m0.070s |
 | sophos-sg-smtp-300000.log | 0m14.582s | 0m14.797s | 0m0.493s |
 
-JSON mode results:
+Worst JSON mode results:
 
 | File | Real | User | Sys |
 | --- | ---:| ---:| ---:|
