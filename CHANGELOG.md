@@ -8,7 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ### Added
 
-1. Changelog.
+1. This changelog.
+1. Contribution guide, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## [1.1.0] - 2020-07-19
 
