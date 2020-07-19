@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-(Nothing at this time.)
+### Added
+
+1. Changelog.
 
 ## [1.1.0] - 2020-07-19
 
@@ -17,10 +19,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [1.0.0] - 2020-07-18
 
+Initial public release.
+
 ### Added
 
-1. Initial public release.
 1. Parsing of uncompressed logfiles.
 1. Support for CSV output (default).
 1. Support for JSON output.
 1. Support for defining internal hosts.
+
+[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.1.0...master
+[1.1.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.0.0...v1.1.0
+[1.0.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/tree/v1.0.0
