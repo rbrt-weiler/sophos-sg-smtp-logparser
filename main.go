@@ -34,8 +34,11 @@ const (
 )
 
 const (
-	errSuccess int = 0 // No error
-	errUsage   int = 1 // Usage error
+	errSuccess    int = 0  // No error
+	errUsage      int = 1  // Usage error
+	errFileCreate int = 10 // Outfile could not be created
+	errFileWrite  int = 11 // Outfile could not be written to
+	errFileFlush  int = 13 // Outfile could not be synced to disk
 )
 
 /*
@@ -53,7 +56,8 @@ type appConfig struct {
 	LogFiles      stringArray
 	InternalHosts stringArray
 	NoCSVHeader   bool
-	OutJSON       bool
+	JSONOutput    bool
+	OutfileName   string
 	PrintVersion  bool
 }
 
@@ -97,7 +101,8 @@ var (
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.BoolVar(&config.NoCSVHeader, "no-csv-header", false, "Omit CSV header line")
-	pflag.BoolVarP(&config.OutJSON, "json", "J", false, "Output in JSON format")
+	pflag.BoolVarP(&config.JSONOutput, "json", "J", false, "Output in JSON format")
+	pflag.StringVarP(&config.OutfileName, "outfile", "o", "", "File to write data to instead of stdout")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
@@ -245,7 +250,7 @@ func main() {
 	}
 
 	output := ""
-	if config.OutJSON {
+	if config.JSONOutput {
 		json, _ := json.MarshalIndent(mails, "", "    ")
 		output = string(json)
 	} else {
@@ -262,7 +267,29 @@ func main() {
 			output = fmt.Sprintf("%s%s\n", output, mp.ToCSV())
 		}
 	}
-	fmt.Print(output)
+	output = strings.TrimSpace(output)
+
+	if config.OutfileName != "" {
+		fileHandle, fileErr := os.Create(config.OutfileName)
+		if fileErr != nil {
+			stdErr.Printf("Could not create outfile: %s\n", fileErr)
+			os.Exit(errFileCreate)
+		}
+		defer fileHandle.Close()
+		fileWriter := bufio.NewWriter(fileHandle)
+		_, writeErr := fileWriter.WriteString(output)
+		if writeErr != nil {
+			stdErr.Printf("Could not write to outfile: %s\n", writeErr)
+			os.Exit(errFileWrite)
+		}
+		flushErr := fileWriter.Flush()
+		if flushErr != nil {
+			stdErr.Printf("Could not flush file buffer: %s\n", flushErr)
+			os.Exit(errFileFlush)
+		}
+	} else {
+		fmt.Print(output)
+	}
 
 	os.Exit(errSuccess)
 }
