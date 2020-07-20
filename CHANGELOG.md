@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 (Nothing to note at this time.)
 
+## [1.2.1] - 2020-07-20
+
+### Fixed
+
+1. Correct exit codes for errors.
+1. Actually update the version string displayed with --version.
+1. Include new information in [README](README.md).
+
 ## [1.2.0] - 2020-07-20
 
 ### Added
@@ -36,6 +44,7 @@ Initial public release.
 1. Support for defining internal hosts.
 
 [Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.0...master
+[1.2.1]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.0...v1.2.1
 [1.2.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.1.0...v1.2.0
 [1.1.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/tree/v1.0.0
