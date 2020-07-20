@@ -13,8 +13,10 @@ SSSLP aims to help administrators who are requested to analyze e-mail traffic. I
 
 ```text
 Available options:
-  -i, --internalhost string   Host part to be considered as internal (default "")
+  -i, --internalhost string   Host part to be considered as internal
   -J, --json                  Output in JSON format
+      --no-csv-header         Omit CSV header line
+  -o, --outfile string        File to write data to instead of stdout
       --version               Print version information and exit
 ```
 
@@ -22,6 +24,9 @@ Available options:
 
 * 0: Success
 * 1: Usage message was shown
+* 10: Outfile could not be created
+* 11: Outfile could not be written to
+* 12: Outfile could not be synced to disk
 
 ## Output Formats
 
