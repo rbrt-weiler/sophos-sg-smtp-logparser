@@ -38,7 +38,7 @@ const (
 	errUsage      int = 1  // Usage error
 	errFileCreate int = 10 // Outfile could not be created
 	errFileWrite  int = 11 // Outfile could not be written to
-	errFileFlush  int = 13 // Outfile could not be synced to disk
+	errFileFlush  int = 12 // Outfile could not be synced to disk
 )
 
 /*
