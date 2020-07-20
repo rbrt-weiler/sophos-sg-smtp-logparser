@@ -52,6 +52,7 @@ const (
 type appConfig struct {
 	LogFiles      stringArray
 	InternalHosts stringArray
+	NoCSVHeader   bool
 	OutJSON       bool
 	PrintVersion  bool
 }
@@ -95,6 +96,7 @@ var (
 // parseCLIOptions parses the provided CLI arguments into appConfig.
 func parseCLIOptions() {
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
+	pflag.BoolVar(&config.NoCSVHeader, "no-csv-header", false, "Omit CSV header line")
 	pflag.BoolVarP(&config.OutJSON, "json", "J", false, "Output in JSON format")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
@@ -247,7 +249,9 @@ func main() {
 		json, _ := json.MarshalIndent(mails, "", "    ")
 		output = string(json)
 	} else {
-		output = fmt.Sprintf("%s%s\n", output, mailPartnerCSVHeader)
+		if !config.NoCSVHeader {
+			output = fmt.Sprintf("%s%s\n", output, mailPartnerCSVHeader)
+		}
 		var keys []string
 		for k := range mails.Partner {
 			keys = append(keys, k)
