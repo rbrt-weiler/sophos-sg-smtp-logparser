@@ -242,11 +242,12 @@ func main() {
 		}
 	}
 
+	output := ""
 	if config.OutJSON {
 		json, _ := json.MarshalIndent(mails, "", "    ")
-		fmt.Println(string(json))
+		output = string(json)
 	} else {
-		fmt.Printf("%s\n", mailPartnerCSVHeader)
+		output = fmt.Sprintf("%s%s\n", output, mailPartnerCSVHeader)
 		var keys []string
 		for k := range mails.Partner {
 			keys = append(keys, k)
@@ -254,9 +255,10 @@ func main() {
 		sort.Strings(keys)
 		for _, k := range keys {
 			mp := mails.Partner[k]
-			fmt.Printf("%s\n", mp.ToCSV())
+			output = fmt.Sprintf("%s%s\n", output, mp.ToCSV())
 		}
 	}
+	fmt.Print(output)
 
 	os.Exit(errSuccess)
 }
