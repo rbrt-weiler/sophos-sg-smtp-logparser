@@ -160,6 +160,8 @@ JSON output is more complex and detailed than CSV output. Running `SSSLP -i exam
 }
 ```
 
+While all fields should be self-explanatory, `mailID` is special. It is the SHA256 hash of the space-delimited values of `queueID`, `date`, `time`, `from` and `to`. The idea is to provide a truly unique identifier for each mail in case you need to reference a specific one for some reason, for example when reporting suspicious mails based on SSSLP results.
+
 ## Dependencies
 
 This tool uses Go modules to handle dependencies. If you cannot use Go modules, please run the following commands to fetch dependencies:

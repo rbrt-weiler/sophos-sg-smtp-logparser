@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-(Nothing to note at this time.)
+### Changed
+
+1. [README]: Added explanation for field `mailID` in JSON results.
 
 ## [1.2.1] - 2020-07-20
 
@@ -14,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 1. Correct exit codes for errors.
 1. Actually update the version string displayed with --version.
-1. Include new information in [README](README.md).
+1. Include new information in [README].
 
 ## [1.2.0] - 2020-07-20
 
@@ -48,3 +50,4 @@ Initial public release.
 [1.2.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.1.0...v1.2.0
 [1.1.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.0.0...v1.1.0
 [1.0.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/tree/v1.0.0
+[README]: README.md
