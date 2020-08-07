@@ -28,7 +28,7 @@ import (
 
 const (
 	toolName    string = "Sophos SMTP Logparser"
-	toolVersion string = "1.2.1"
+	toolVersion string = "1.2.2"
 	toolID      string = toolName + "/" + toolVersion
 	toolURL     string = "https://gitlab.com/rbrt-weiler/sophos-smtp-logparser"
 )
@@ -79,12 +79,13 @@ var (
 	stdErr = log.New(os.Stderr, "", log.LstdFlags) // Shortcut for CLI output.
 
 	// Regular expressions used for parsing a single log line.
-	reDateTime = regexp.MustCompile(`^(.+?)-(.+?)\s`)
-	reFrom     = regexp.MustCompile(`\sfrom="(.*?)"\s?`)
-	reTo       = regexp.MustCompile(`\sto="(.*?)"\s?`)
-	reSubject  = regexp.MustCompile(`\ssubject="(.*?)"\s?`)
-	reSize     = regexp.MustCompile(`\ssize="(.+?)"\s?`)
-	reQueueID  = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
+	reDateTime   = regexp.MustCompile(`^(.+?)-(.+?)\s`)
+	reValidEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	reFrom       = regexp.MustCompile(`\sfrom="(.*?)"\s?`)
+	reTo         = regexp.MustCompile(`\sto="(.*?)"\s?`)
+	reSubject    = regexp.MustCompile(`\ssubject="(.*?)"\s?`)
+	reSize       = regexp.MustCompile(`\ssize="(.+?)"\s?`)
+	reQueueID    = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
 )
 
 /*
@@ -140,6 +141,11 @@ func parseCLIOptions() {
 ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
 */
 
+// isValidEmail returns true if address is a valid e-mail address, else false.
+func isValidEmail(address string) bool {
+	return reValidEmail.MatchString(address)
+}
+
 // parseLogLine parses a single log line into a singleMail structure.
 func parseLogLine(line string) (singleMail, error) {
 	var mail singleMail
@@ -150,14 +156,14 @@ func parseLogLine(line string) (singleMail, error) {
 	from := reFrom.FindStringSubmatch(line)
 	if len(from) != 2 {
 		return mail, fmt.Errorf("Line could not be parsed: Empty <from>")
-	} else if !strings.Contains(from[1], "@") {
+	} else if !isValidEmail(from[1]) {
 		return mail, fmt.Errorf("Line could not be parsed: from <%s> is not an e-mail address", from[1])
 	}
 	mail.SetFrom(from[1])
 	to := reTo.FindStringSubmatch(line)
 	if len(to) != 2 {
 		return mail, fmt.Errorf("Line could not be parsed: Empty <to>")
-	} else if !strings.Contains(to[1], "@") {
+	} else if !isValidEmail(to[1]) {
 		return mail, fmt.Errorf("Line could not be parsed: to <%s> is not an e-mail address", to[1])
 	}
 	mail.SetTo(to[1])

@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+Nothing at this point.
+
+## [1.2.2] - 2020-08-07
+
 ### Changed
 
 1. [README]: Added explanation for field `mailID` in JSON results.
+1. Improved validity check for e-mail addresses found in logfiles.
 
 ## [1.2.1] - 2020-07-20
 
@@ -45,7 +50,8 @@ Initial public release.
 1. Support for JSON output.
 1. Support for defining internal hosts.
 
-[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.0...master
+[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.2...master
+[1.2.2]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.1...v1.2.2
 [1.2.1]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.0...v1.2.1
 [1.2.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.1.0...v1.2.0
 [1.1.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.0.0...v1.1.0
