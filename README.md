@@ -13,6 +13,7 @@ SSSLP aims to help administrators who are requested to analyze e-mail traffic. I
 
 ```text
 Available options:
+  -Z, --compress-outfile      Compress output (with -o)
   -i, --internalhost string   Host part to be considered as internal
   -J, --json                  Output in JSON format
       --no-csv-header         Omit CSV header line
@@ -27,6 +28,9 @@ Available options:
 * 10: Outfile could not be created
 * 11: Outfile could not be written to
 * 12: Outfile could not be synced to disk
+* 20: Gzip stream could not be created
+* 21: Gzip stream could not be written to
+* 22: Gzip stream could not be synced
 
 ## Output Formats
 
@@ -59,7 +63,7 @@ i2e,0,0,someone@example.com,someone@outside.example.com,1,56264,false
 
 ### JSON
 
-JSON output is more complex and detailed than CSV output. Running `SSSLP -i example.com -J mail.log` will results in this output:
+JSON output is more complex and detailed than CSV output. Running `SSSLP -i example.com -J mail.log` will result in this output:
 
 ```json
 {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
@@ -28,7 +29,7 @@ import (
 
 const (
 	toolName    string = "Sophos SMTP Logparser"
-	toolVersion string = "1.2.2"
+	toolVersion string = "1.3.0"
 	toolID      string = toolName + "/" + toolVersion
 	toolURL     string = "https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser"
 )
@@ -39,6 +40,9 @@ const (
 	errFileCreate int = 10 // Outfile could not be created
 	errFileWrite  int = 11 // Outfile could not be written to
 	errFileFlush  int = 12 // Outfile could not be synced to disk
+	errGzipCreate int = 20 // Gzip stream could not be created
+	errGzipWrite  int = 21 // Gzip stream could not be written to
+	errGzipFlush  int = 22 // Gzip stream could not be synced
 )
 
 /*
@@ -53,12 +57,13 @@ const (
 
 // appConfig defines a storage type for global app configuration.
 type appConfig struct {
-	LogFiles      stringArray
-	InternalHosts stringArray
-	NoCSVHeader   bool
-	JSONOutput    bool
-	OutfileName   string
-	PrintVersion  bool
+	LogFiles       stringArray
+	InternalHosts  stringArray
+	NoCSVHeader    bool
+	JSONOutput     bool
+	OutfileName    string
+	CompressOutput bool
+	PrintVersion   bool
 }
 
 /*
@@ -104,6 +109,7 @@ func parseCLIOptions() {
 	pflag.BoolVar(&config.NoCSVHeader, "no-csv-header", false, "Omit CSV header line")
 	pflag.BoolVarP(&config.JSONOutput, "json", "J", false, "Output in JSON format")
 	pflag.StringVarP(&config.OutfileName, "outfile", "o", "", "File to write data to instead of stdout")
+	pflag.BoolVarP(&config.CompressOutput, "compress-outfile", "Z", false, "Compress output (with -o)")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
@@ -221,7 +227,7 @@ func parseLogFile(logfile string) error {
 	return nil
 }
 
-// writeOutfile writes uncompressed content to fileName.
+// writeOutfile writes content to fileName.
 func writeOutfile(fileName string, content string) (int, error) {
 	fileHandle, fileErr := os.Create(fileName)
 	if fileErr != nil {
@@ -238,6 +244,25 @@ func writeOutfile(fileName string, content string) (int, error) {
 		return errFileFlush, fmt.Errorf("Could not flush file buffer: %s", flushErr)
 	}
 	return errSuccess, nil
+}
+
+// writeCompressedOutfile writes compressed content to fileName.
+func writeCompressedOutfile(fileName string, content string) (int, error) {
+	var buf bytes.Buffer
+	gzipWriter, gzipWriterErr := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+	if gzipWriterErr != nil {
+		return errGzipCreate, fmt.Errorf("Could not create gzip stream: %s", gzipWriterErr)
+	}
+	defer gzipWriter.Close()
+	_, writeErr := gzipWriter.Write([]byte(content))
+	if writeErr != nil {
+		return errGzipWrite, fmt.Errorf("Could not write to gzip buffer: %s", writeErr)
+	}
+	flushErr := gzipWriter.Flush()
+	if flushErr != nil {
+		return errGzipFlush, fmt.Errorf("Could not flush gzip buffer: %s", flushErr)
+	}
+	return writeOutfile(fileName, buf.String())
 }
 
 /*
@@ -295,7 +320,13 @@ func main() {
 	output = strings.TrimSpace(output)
 
 	if config.OutfileName != "" {
-		errCode, outErr := writeOutfile(config.OutfileName, output)
+		var errCode int
+		var outErr error
+		if config.CompressOutput {
+			errCode, outErr = writeCompressedOutfile(config.OutfileName, output)
+		} else {
+			errCode, outErr = writeOutfile(config.OutfileName, output)
+		}
 		if outErr != nil {
 			stdErr.Printf("%s\n", outErr)
 			os.Exit(errCode)

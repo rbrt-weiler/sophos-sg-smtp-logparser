@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+(Nothing at this point.)
+
+## [1.3.0] - 2020-08-08
+
 ### Added
 
 1. Added Visual Studio Code Development Container configuration.
+1. Data written to outfile may now be compressed.
 
 ### Fixed
 
@@ -56,7 +61,8 @@ Initial public release.
 1. Support for JSON output.
 1. Support for defining internal hosts.
 
-[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.2...master
+[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.3.0...master
+[1.3.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.2...v1.3.0
 [1.2.2]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.1...v1.2.2
 [1.2.1]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.0...v1.2.1
 [1.2.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.1.0...v1.2.0

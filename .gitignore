@@ -1,6 +1,7 @@
 .DS_Store
-./*.csv
-./*.json
-./*.log
+*.csv
+*.gz
+*.json
+*.log
 bin/
 logs/
