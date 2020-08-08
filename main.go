@@ -221,6 +221,25 @@ func parseLogFile(logfile string) error {
 	return nil
 }
 
+// writeOutfile writes uncompressed content to fileName.
+func writeOutfile(fileName string, content string) (int, error) {
+	fileHandle, fileErr := os.Create(fileName)
+	if fileErr != nil {
+		return errFileCreate, fmt.Errorf("Could not create outfile: %s", fileErr)
+	}
+	defer fileHandle.Close()
+	fileWriter := bufio.NewWriter(fileHandle)
+	_, writeErr := fileWriter.WriteString(content)
+	if writeErr != nil {
+		return errFileWrite, fmt.Errorf("Could not write to outfile: %s", writeErr)
+	}
+	flushErr := fileWriter.Flush()
+	if flushErr != nil {
+		return errFileFlush, fmt.Errorf("Could not flush file buffer: %s", flushErr)
+	}
+	return errSuccess, nil
+}
+
 /*
 ##     ##    ###    #### ##    ##
 ###   ###   ## ##    ##  ###   ##
@@ -276,22 +295,10 @@ func main() {
 	output = strings.TrimSpace(output)
 
 	if config.OutfileName != "" {
-		fileHandle, fileErr := os.Create(config.OutfileName)
-		if fileErr != nil {
-			stdErr.Printf("Could not create outfile: %s\n", fileErr)
-			os.Exit(errFileCreate)
-		}
-		defer fileHandle.Close()
-		fileWriter := bufio.NewWriter(fileHandle)
-		_, writeErr := fileWriter.WriteString(output)
-		if writeErr != nil {
-			stdErr.Printf("Could not write to outfile: %s\n", writeErr)
-			os.Exit(errFileWrite)
-		}
-		flushErr := fileWriter.Flush()
-		if flushErr != nil {
-			stdErr.Printf("Could not flush file buffer: %s\n", flushErr)
-			os.Exit(errFileFlush)
+		errCode, outErr := writeOutfile(config.OutfileName, output)
+		if outErr != nil {
+			stdErr.Printf("%s\n", outErr)
+			os.Exit(errCode)
 		}
 	} else {
 		fmt.Print(output)
