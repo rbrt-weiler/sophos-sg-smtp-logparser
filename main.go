@@ -30,7 +30,7 @@ const (
 	toolName    string = "Sophos SMTP Logparser"
 	toolVersion string = "1.2.2"
 	toolID      string = toolName + "/" + toolVersion
-	toolURL     string = "https://gitlab.com/rbrt-weiler/sophos-smtp-logparser"
+	toolURL     string = "https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser"
 )
 
 const (
