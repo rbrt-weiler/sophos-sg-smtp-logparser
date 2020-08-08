@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-Nothing at this point.
+### Added
+
+1. Added Visual Studio Code Development Container configuration.
 
 ## [1.2.2] - 2020-08-07
 
