@@ -254,6 +254,8 @@ func writeCompressedOutfile(fileName string, content string) (int, error) {
 	if gzipWriterErr != nil {
 		return errGzipCreate, fmt.Errorf("Could not create gzip stream: %s", gzipWriterErr)
 	}
+	gzipWriter.ModTime = time.Now()
+	gzipWriter.Comment = fmt.Sprintf("created with %s", toolID)
 	_, writeErr := gzipWriter.Write([]byte(content))
 	if writeErr != nil {
 		return errGzipWrite, fmt.Errorf("Could not write to gzip buffer: %s", writeErr)

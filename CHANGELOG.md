@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Fixed
 
 1. Platform specific problem with invalid Gzip files when using -Z.
+1. Add additional metadata to Gzip files when using -Z.
 
 ## [1.3.0] - 2020-08-08
 
