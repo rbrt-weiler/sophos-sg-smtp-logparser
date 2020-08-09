@@ -31,6 +31,7 @@ Available options:
 * 20: Gzip stream could not be created
 * 21: Gzip stream could not be written to
 * 22: Gzip stream could not be synced
+* 23: Gzip stream could not be closed
 
 ## Output Formats
 

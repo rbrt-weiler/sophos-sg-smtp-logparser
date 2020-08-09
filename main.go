@@ -43,6 +43,7 @@ const (
 	errGzipCreate int = 20 // Gzip stream could not be created
 	errGzipWrite  int = 21 // Gzip stream could not be written to
 	errGzipFlush  int = 22 // Gzip stream could not be synced
+	errGzipClose  int = 23 // Gzip stream could not be closed
 )
 
 /*
@@ -253,7 +254,6 @@ func writeCompressedOutfile(fileName string, content string) (int, error) {
 	if gzipWriterErr != nil {
 		return errGzipCreate, fmt.Errorf("Could not create gzip stream: %s", gzipWriterErr)
 	}
-	defer gzipWriter.Close()
 	_, writeErr := gzipWriter.Write([]byte(content))
 	if writeErr != nil {
 		return errGzipWrite, fmt.Errorf("Could not write to gzip buffer: %s", writeErr)
@@ -261,6 +261,10 @@ func writeCompressedOutfile(fileName string, content string) (int, error) {
 	flushErr := gzipWriter.Flush()
 	if flushErr != nil {
 		return errGzipFlush, fmt.Errorf("Could not flush gzip buffer: %s", flushErr)
+	}
+	closeErr := gzipWriter.Close()
+	if closeErr != nil {
+		return errGzipClose, fmt.Errorf("Could not close gzip stream: %s", closeErr)
 	}
 	return writeOutfile(fileName, buf.String())
 }
