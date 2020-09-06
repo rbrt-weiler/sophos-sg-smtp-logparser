@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 )
 
@@ -41,15 +40,4 @@ func (lb *lineBuffer) Len() uint32 {
 	n := len(lb.lines)
 	lb.mutex.Unlock()
 	return uint32(n)
-}
-
-// String returns a newline-terminated string containing all lines in the buffer.
-func (lb *lineBuffer) String() string {
-	var lines []string
-	lb.mutex.Lock()
-	for _, logLine := range lb.lines {
-		lines = append(lines, logLine.String())
-	}
-	lb.mutex.Unlock()
-	return strings.Join(lines, "\n")
 }
