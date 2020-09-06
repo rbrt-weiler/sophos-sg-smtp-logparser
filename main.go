@@ -204,6 +204,7 @@ func parseLogLine(threadMgmt *chan bool, line string) {
 func parseLogFile(logfile string) error {
 	var fileScanner *bufio.Scanner
 	var lineNo uint32
+	var lines []logLine
 
 	file, fileErr := os.Open(logfile)
 	if fileErr != nil {
@@ -234,7 +235,12 @@ func parseLogFile(logfile string) error {
 		if !strings.Contains(line, `id="1000"`) {
 			continue
 		}
-		lb.Push(logLine{FileName: logfile, LineNumber: lineNo, Content: line})
+		lines = append(lines, logLine{FileName: logfile, LineNumber: lineNo, Content: line})
+	}
+
+	pushErr := lb.PushSlice(lines)
+	if pushErr != nil {
+		return fmt.Errorf("Could not push slice to buffer: %s", pushErr)
 	}
 
 	return nil

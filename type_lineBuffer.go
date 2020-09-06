@@ -19,6 +19,16 @@ func (lb *lineBuffer) Push(line logLine) error {
 	return nil
 }
 
+// PushSlice stores a number of new logLines in the lineBuffer.
+func (lb *lineBuffer) PushSlice(lines []logLine) error {
+	lb.mutex.Lock()
+	for _, line := range lines {
+		lb.lines = append(lb.lines, line)
+	}
+	lb.mutex.Unlock()
+	return nil
+}
+
 // Pop retrieves an element of the lineBuffer.
 func (lb *lineBuffer) Pop() (logLine, error) {
 	lb.mutex.Lock()
