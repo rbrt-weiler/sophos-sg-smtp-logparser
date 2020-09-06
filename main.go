@@ -59,7 +59,7 @@ const (
 
 // appConfig defines a storage type for global app configuration.
 type appConfig struct {
-	MaxThreads     int
+	SpareThreads   int
 	LogFiles       stringArray
 	InternalHosts  stringArray
 	NoCSVHeader    bool
@@ -110,7 +110,7 @@ var (
 
 // parseCLIOptions parses the provided CLI arguments into appConfig.
 func parseCLIOptions() {
-	pflag.IntVar(&config.MaxThreads, "threads", 2, "Threads to use for SSSLP")
+	pflag.IntVar(&config.SpareThreads, "sparethreads", 2, "Threads to keep free for other programs")
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.BoolVar(&config.NoCSVHeader, "no-csv-header", false, "Omit CSV header line")
 	pflag.BoolVarP(&config.JSONOutput, "json", "J", false, "Output in JSON format")
@@ -304,6 +304,8 @@ func waitAndClear(threadMgmt *chan bool) {
 */
 
 func main() {
+	var numCPUs int
+	var maxThreads int
 	var i uint32
 
 	parseCLIOptions()
@@ -317,12 +319,15 @@ func main() {
 		stdErr.Fatal("At least one logfile is required.")
 	}
 
-	if config.MaxThreads < 2 {
-		config.MaxThreads = 2
-	} else if config.MaxThreads > runtime.NumCPU() {
-		config.MaxThreads = runtime.NumCPU()
+	numCPUs = runtime.NumCPU()
+	maxThreads = numCPUs - config.SpareThreads
+	if maxThreads > numCPUs {
+		maxThreads = numCPUs
 	}
-	threadManager := make(chan bool, config.MaxThreads-1)
+	if maxThreads < 2 {
+		maxThreads = 2
+	}
+	threadManager := make(chan bool, maxThreads-1)
 
 	mails.CreateDateTime = time.Now()
 	mails.CreateDateTimeUnix = mails.CreateDateTime.Unix()
