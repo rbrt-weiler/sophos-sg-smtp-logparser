@@ -190,6 +190,8 @@ func parseLogLine(threadMgmt *chan bool, line string) {
 	subject := reSubject.FindStringSubmatch(line)
 	if len(subject) != 2 {
 		stdErr.Printf("Skipping mail: Line could not be parsed: Subject missing\n")
+		<-*threadMgmt
+		return
 	}
 	mail.SetSubject(subject[1])
 	mail.SetSize(reSize.FindStringSubmatch(line)[1])
