@@ -78,8 +78,9 @@ type appConfig struct {
 */
 
 var (
-	config appConfig // Holds config as defined by CLI arguments.
-	mails  mailData  // Data structure for storing parsed results.
+	config appConfig  // Holds config as defined by CLI arguments.
+	lb     lineBuffer // Stores log lines that should be parsed
+	mails  mailData   // Data structure for storing parsed results.
 
 	stdOut = log.New(os.Stdout, "", log.LstdFlags) // Shortcut for CLI output.
 	stdErr = log.New(os.Stderr, "", log.LstdFlags) // Shortcut for CLI output.
@@ -189,6 +190,7 @@ func parseLogLine(line string) (singleMail, error) {
 // parseLogFile goes through a logfile and applies parseLogLine for relevant lines.
 func parseLogFile(logfile string) error {
 	var fileScanner *bufio.Scanner
+	var lineNo uint32
 
 	file, fileErr := os.Open(logfile)
 	if fileErr != nil {
@@ -206,7 +208,9 @@ func parseLogFile(logfile string) error {
 		fileScanner = bufio.NewScanner(file)
 	}
 
+	lineNo = 0
 	for fileScanner.Scan() {
+		lineNo++
 		line := fileScanner.Text()
 		if !strings.Contains(line, `smtpd[`) {
 			continue
@@ -217,12 +221,7 @@ func parseLogFile(logfile string) error {
 		if !strings.Contains(line, `id="1000"`) {
 			continue
 		}
-		mail, mailErr := parseLogLine(line)
-		if mailErr != nil {
-			stdErr.Printf("Skipping mail: %s", mailErr)
-			continue
-		}
-		mails.Append(mail)
+		lb.Push(logLine{FileName: logfile, LineNumber: lineNo, Content: line})
 	}
 
 	return nil
@@ -303,6 +302,27 @@ func main() {
 		if parseErr != nil {
 			stdOut.Println(parseErr)
 		}
+	}
+
+	if lb.Len() > 0 {
+		var i uint32
+		elements := lb.Len()
+		for i = 0; i < elements; i++ {
+			line, lineErr := lb.Pop()
+			if lineErr != nil {
+				fmt.Printf("Could not pop element: %s\n", lineErr)
+				break
+			}
+			mail, mailErr := parseLogLine(line.String())
+			if mailErr != nil {
+				stdErr.Printf("Skipping mail: %s", mailErr)
+				continue
+			}
+			mails.Append(mail)
+		}
+	} else {
+		stdErr.Println("No relevant log lines found. Exiting.")
+		os.Exit(errSuccess)
 	}
 
 	output := ""
