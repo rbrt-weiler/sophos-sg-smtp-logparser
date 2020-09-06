@@ -80,6 +80,7 @@ type appConfig struct {
 var (
 	config appConfig  // Holds config as defined by CLI arguments.
 	lb     lineBuffer // Stores log lines that should be parsed
+	mb     mailBuffer // Temporary storage for parsed mails
 	mails  mailData   // Data structure for storing parsed results.
 
 	stdOut = log.New(os.Stdout, "", log.LstdFlags) // Shortcut for CLI output.
@@ -155,7 +156,7 @@ func isValidEmail(address string) bool {
 }
 
 // parseLogLine parses a single log line into a singleMail structure.
-func parseLogLine(line string) (singleMail, error) {
+func parseLogLine(line string) {
 	var mail singleMail
 
 	dateTime := reDateTime.FindStringSubmatch(line)
@@ -163,28 +164,32 @@ func parseLogLine(line string) (singleMail, error) {
 	mail.SetTime(dateTime[2])
 	from := reFrom.FindStringSubmatch(line)
 	if len(from) != 2 {
-		return mail, fmt.Errorf("Line could not be parsed: Empty <from>")
+		stdErr.Printf("Skipping mail: Line could not be parsed: Empty <from>\n")
+		return
 	} else if !isValidEmail(from[1]) {
-		return mail, fmt.Errorf("Line could not be parsed: from <%s> is not an e-mail address", from[1])
+		stdErr.Printf("Skipping mail: Line could not be parsed: from <%s> is not an e-mail address\n", from[1])
+		return
 	}
 	mail.SetFrom(from[1])
 	to := reTo.FindStringSubmatch(line)
 	if len(to) != 2 {
-		return mail, fmt.Errorf("Line could not be parsed: Empty <to>")
+		stdErr.Printf("Skipping mail: Line could not be parsed: Empty <to>\n")
+		return
 	} else if !isValidEmail(to[1]) {
-		return mail, fmt.Errorf("Line could not be parsed: to <%s> is not an e-mail address", to[1])
+		stdErr.Printf("Skipping mail: Line could not be parsed: to <%s> is not an e-mail address\n", to[1])
+		return
 	}
 	mail.SetTo(to[1])
 	subject := reSubject.FindStringSubmatch(line)
 	if len(subject) != 2 {
-		return mail, fmt.Errorf("Line could not be parsed: Subject missing")
+		stdErr.Printf("Skipping mail: Line could not be parsed: Subject missing\n")
 	}
 	mail.SetSubject(subject[1])
 	mail.SetSize(reSize.FindStringSubmatch(line)[1])
 	mail.SetQueueID(reQueueID.FindStringSubmatch(line)[1])
 	mail.GenerateMailID()
 
-	return mail, nil
+	mb.Push(mail)
 }
 
 // parseLogFile goes through a logfile and applies parseLogLine for relevant lines.
@@ -281,6 +286,8 @@ func writeCompressedOutfile(fileName string, content string) (int, error) {
 */
 
 func main() {
+	var i uint32
+
 	parseCLIOptions()
 
 	if config.PrintVersion {
@@ -305,23 +312,31 @@ func main() {
 	}
 
 	if lb.Len() > 0 {
-		var i uint32
 		elements := lb.Len()
 		for i = 0; i < elements; i++ {
 			line, lineErr := lb.Pop()
 			if lineErr != nil {
-				fmt.Printf("Could not pop element: %s\n", lineErr)
+				stdErr.Printf("Could not pop log line: %s\n", lineErr)
 				break
 			}
-			mail, mailErr := parseLogLine(line.String())
+			parseLogLine(line.String())
+		}
+	} else {
+		stdErr.Println("No relevant log lines found. Exiting.")
+		os.Exit(errSuccess)
+	}
+
+	if mb.Len() > 0 {
+		elements := mb.Len()
+		for i = 0; i < elements; i++ {
+			mail, mailErr := mb.Pop()
 			if mailErr != nil {
-				stdErr.Printf("Skipping mail: %s", mailErr)
-				continue
+				stdErr.Printf("Could not pop mail: %s\n", mailErr)
 			}
 			mails.Append(mail)
 		}
 	} else {
-		stdErr.Println("No relevant log lines found. Exiting.")
+		stdErr.Println("No parsable log line found. Exiting.")
 		os.Exit(errSuccess)
 	}
 
