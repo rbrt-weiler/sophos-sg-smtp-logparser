@@ -347,7 +347,7 @@ func main() {
 			line, lineErr := lb.Pop()
 			if lineErr != nil {
 				stdErr.Printf("Could not pop log line: %s\n", lineErr)
-				break
+				continue
 			}
 			threadManager <- true
 			go parseLogLine(&threadManager, line.String())
@@ -364,6 +364,7 @@ func main() {
 			mail, mailErr := mb.Pop()
 			if mailErr != nil {
 				stdErr.Printf("Could not pop mail: %s\n", mailErr)
+				continue
 			}
 			mails.Append(mail)
 		}
