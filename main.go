@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -29,7 +30,7 @@ import (
 
 const (
 	toolName    string = "Sophos SG SMTP Logfile Parser"
-	toolVersion string = "1.3.1"
+	toolVersion string = "1.3.1-multithread"
 	toolID      string = toolName + "/" + toolVersion
 	toolURL     string = "https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser"
 )
@@ -58,6 +59,7 @@ const (
 
 // appConfig defines a storage type for global app configuration.
 type appConfig struct {
+	MaxThreads     int
 	LogFiles       stringArray
 	InternalHosts  stringArray
 	NoCSVHeader    bool
@@ -108,6 +110,7 @@ var (
 
 // parseCLIOptions parses the provided CLI arguments into appConfig.
 func parseCLIOptions() {
+	pflag.IntVar(&config.MaxThreads, "threads", 2, "Threads to use for SSSLP")
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.BoolVar(&config.NoCSVHeader, "no-csv-header", false, "Omit CSV header line")
 	pflag.BoolVarP(&config.JSONOutput, "json", "J", false, "Output in JSON format")
@@ -156,7 +159,7 @@ func isValidEmail(address string) bool {
 }
 
 // parseLogLine parses a single log line into a singleMail structure.
-func parseLogLine(line string) {
+func parseLogLine(threadMgmt *chan bool, line string) {
 	var mail singleMail
 
 	dateTime := reDateTime.FindStringSubmatch(line)
@@ -165,18 +168,22 @@ func parseLogLine(line string) {
 	from := reFrom.FindStringSubmatch(line)
 	if len(from) != 2 {
 		stdErr.Printf("Skipping mail: Line could not be parsed: Empty <from>\n")
+		<-*threadMgmt
 		return
 	} else if !isValidEmail(from[1]) {
 		stdErr.Printf("Skipping mail: Line could not be parsed: from <%s> is not an e-mail address\n", from[1])
+		<-*threadMgmt
 		return
 	}
 	mail.SetFrom(from[1])
 	to := reTo.FindStringSubmatch(line)
 	if len(to) != 2 {
 		stdErr.Printf("Skipping mail: Line could not be parsed: Empty <to>\n")
+		<-*threadMgmt
 		return
 	} else if !isValidEmail(to[1]) {
 		stdErr.Printf("Skipping mail: Line could not be parsed: to <%s> is not an e-mail address\n", to[1])
+		<-*threadMgmt
 		return
 	}
 	mail.SetTo(to[1])
@@ -190,6 +197,7 @@ func parseLogLine(line string) {
 	mail.GenerateMailID()
 
 	mb.Push(mail)
+	<-*threadMgmt
 }
 
 // parseLogFile goes through a logfile and applies parseLogLine for relevant lines.
@@ -275,6 +283,16 @@ func writeCompressedOutfile(fileName string, content string) (int, error) {
 	return writeOutfile(fileName, buf.String())
 }
 
+// waitAndClear completely fills and clears the thread management semaphore.
+func waitAndClear(threadMgmt *chan bool) {
+	for i := 0; i < cap(*threadMgmt); i++ {
+		*threadMgmt <- true
+	}
+	for i := 0; i < cap(*threadMgmt); i++ {
+		<-*threadMgmt
+	}
+}
+
 /*
 ##     ##    ###    #### ##    ##
 ###   ###   ## ##    ##  ###   ##
@@ -299,6 +317,13 @@ func main() {
 		stdErr.Fatal("At least one logfile is required.")
 	}
 
+	if config.MaxThreads < 2 {
+		config.MaxThreads = 2
+	} else if config.MaxThreads > runtime.NumCPU() {
+		config.MaxThreads = runtime.NumCPU()
+	}
+	threadManager := make(chan bool, config.MaxThreads-1)
+
 	mails.CreateDateTime = time.Now()
 	mails.CreateDateTimeUnix = mails.CreateDateTime.Unix()
 	mails.CreateDate = mails.CreateDateTime.Format("2006-01-02")
@@ -319,12 +344,14 @@ func main() {
 				stdErr.Printf("Could not pop log line: %s\n", lineErr)
 				break
 			}
-			parseLogLine(line.String())
+			threadManager <- true
+			go parseLogLine(&threadManager, line.String())
 		}
 	} else {
 		stdErr.Println("No relevant log lines found. Exiting.")
 		os.Exit(errSuccess)
 	}
+	waitAndClear(&threadManager)
 
 	if mb.Len() > 0 {
 		elements := mb.Len()
