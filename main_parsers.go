@@ -8,47 +8,52 @@ import (
 	"strings"
 )
 
-// parseLogLine parses a single log line into a singleMail structure.
-func parseLogLine(threadMgmt *chan bool, line string) {
-	var mail singleMail
+// parseLogLineSlice parses a slice of single log lines.
+func parseLogLineSlice(threadMgmt *chan bool, lines []logLine) {
+	var mails []singleMail
 
-	dateTime := reDateTime.FindStringSubmatch(line)
-	mail.SetDate(strings.ReplaceAll(dateTime[1], `:`, `-`))
-	mail.SetTime(dateTime[2])
-	from := reFrom.FindStringSubmatch(line)
-	if len(from) != 2 {
-		stdErr.Printf("Skipping mail: Line could not be parsed: Empty <from>\n")
-		<-*threadMgmt
-		return
-	} else if !isValidEmail(from[1]) {
-		stdErr.Printf("Skipping mail: Line could not be parsed: from <%s> is not an e-mail address\n", from[1])
-		<-*threadMgmt
-		return
+	for _, singleLine := range lines {
+		var mail singleMail
+		line := singleLine.String()
+		dateTime := reDateTime.FindStringSubmatch(line)
+		mail.SetDate(strings.ReplaceAll(dateTime[1], `:`, `-`))
+		mail.SetTime(dateTime[2])
+		from := reFrom.FindStringSubmatch(line)
+		if len(from) != 2 {
+			stdErr.Printf("Skipping mail: Line could not be parsed: Empty <from>\n")
+			<-*threadMgmt
+			return
+		} else if !isValidEmail(from[1]) {
+			stdErr.Printf("Skipping mail: Line could not be parsed: from <%s> is not an e-mail address\n", from[1])
+			<-*threadMgmt
+			return
+		}
+		mail.SetFrom(from[1])
+		to := reTo.FindStringSubmatch(line)
+		if len(to) != 2 {
+			stdErr.Printf("Skipping mail: Line could not be parsed: Empty <to>\n")
+			<-*threadMgmt
+			return
+		} else if !isValidEmail(to[1]) {
+			stdErr.Printf("Skipping mail: Line could not be parsed: to <%s> is not an e-mail address\n", to[1])
+			<-*threadMgmt
+			return
+		}
+		mail.SetTo(to[1])
+		subject := reSubject.FindStringSubmatch(line)
+		if len(subject) != 2 {
+			stdErr.Printf("Skipping mail: Line could not be parsed: Subject missing\n")
+			<-*threadMgmt
+			return
+		}
+		mail.SetSubject(subject[1])
+		mail.SetSize(reSize.FindStringSubmatch(line)[1])
+		mail.SetQueueID(reQueueID.FindStringSubmatch(line)[1])
+		mail.GenerateMailID()
+		mails = append(mails, mail)
 	}
-	mail.SetFrom(from[1])
-	to := reTo.FindStringSubmatch(line)
-	if len(to) != 2 {
-		stdErr.Printf("Skipping mail: Line could not be parsed: Empty <to>\n")
-		<-*threadMgmt
-		return
-	} else if !isValidEmail(to[1]) {
-		stdErr.Printf("Skipping mail: Line could not be parsed: to <%s> is not an e-mail address\n", to[1])
-		<-*threadMgmt
-		return
-	}
-	mail.SetTo(to[1])
-	subject := reSubject.FindStringSubmatch(line)
-	if len(subject) != 2 {
-		stdErr.Printf("Skipping mail: Line could not be parsed: Subject missing\n")
-		<-*threadMgmt
-		return
-	}
-	mail.SetSubject(subject[1])
-	mail.SetSize(reSize.FindStringSubmatch(line)[1])
-	mail.SetQueueID(reQueueID.FindStringSubmatch(line)[1])
-	mail.GenerateMailID()
 
-	mb.Push(mail)
+	mb.PushSlice(mails)
 	<-*threadMgmt
 }
 

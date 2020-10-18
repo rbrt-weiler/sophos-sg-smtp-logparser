@@ -214,15 +214,14 @@ func main() {
 	}
 
 	if lb.Len() > 0 {
-		elements := lb.Len()
-		for i = 0; i < elements; i++ {
-			line, lineErr := lb.Pop()
-			if lineErr != nil {
-				stdErr.Printf("Could not pop log line: %s\n", lineErr)
+		for lb.Len() > 0 {
+			lines, linesErr := lb.PopSlice(100)
+			if linesErr != nil {
+				stdErr.Printf("Could not pop log lines: %s\n", linesErr)
 				continue
 			}
 			threadManager <- true
-			go parseLogLine(&threadManager, line.String())
+			go parseLogLineSlice(&threadManager, lines)
 		}
 	} else {
 		stdErr.Println("No relevant log lines found. Exiting.")
