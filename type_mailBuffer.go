@@ -11,7 +11,7 @@ type mailBuffer struct {
 	mails []singleMail
 }
 
-// Push stores a new singleMail in the mailBuffer.
+// Push stores a new singleMail at the end of the mailBuffer.
 func (mb *mailBuffer) Push(mail singleMail) error {
 	mb.mutex.Lock()
 	mb.mails = append(mb.mails, mail)
@@ -19,7 +19,17 @@ func (mb *mailBuffer) Push(mail singleMail) error {
 	return nil
 }
 
-// Pop retrieves an element of the mailBuffer.
+// PushSlice stores a number of new singleMails at the end of the mailBuffer.
+func (mb *mailBuffer) PushSlice(mails []singleMail) error {
+	mb.mutex.Lock()
+	for _, mail := range mails {
+		mb.mails = append(mb.mails, mail)
+	}
+	mb.mutex.Unlock()
+	return nil
+}
+
+// Pop retrieves an element off the end of the mailBuffer.
 func (mb *mailBuffer) Pop() (singleMail, error) {
 	mb.mutex.Lock()
 	n := len(mb.mails) - 1
