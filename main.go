@@ -178,7 +178,6 @@ func waitAndClear(threadMgmt *chan bool) {
 func main() {
 	var numCPUs int
 	var maxThreads int
-	var i uint32
 
 	parseCLIOptions()
 
@@ -230,14 +229,15 @@ func main() {
 	waitAndClear(&threadManager)
 
 	if mb.Len() > 0 {
-		elements := mb.Len()
-		for i = 0; i < elements; i++ {
-			mail, mailErr := mb.Pop()
-			if mailErr != nil {
-				stdErr.Printf("Could not pop mail: %s\n", mailErr)
+		for mb.Len() > 0 {
+			mailSlice, mailSliceErr := mb.PopSlice(100)
+			if mailSliceErr != nil {
+				stdErr.Printf("Could nor pop mails: %s\n", mailSliceErr)
 				continue
 			}
-			mails.Append(mail)
+			for _, mail := range mailSlice {
+				mails.Append(mail)
+			}
 		}
 	} else {
 		stdErr.Println("No parsable log line found. Exiting.")
