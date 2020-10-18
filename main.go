@@ -57,6 +57,7 @@ const (
 // appConfig defines a storage type for global app configuration.
 type appConfig struct {
 	SpareThreads   int
+	SliceSize      int
 	LogFiles       stringArray
 	InternalHosts  stringArray
 	NoCSVHeader    bool
@@ -108,6 +109,7 @@ var (
 // parseCLIOptions parses the provided CLI arguments into appConfig.
 func parseCLIOptions() {
 	pflag.IntVar(&config.SpareThreads, "sparethreads", 2, "Threads to keep free for other programs")
+	pflag.IntVar(&config.SliceSize, "slicesize", 100, "Size of internal parsing slices")
 	pflag.VarP(&config.InternalHosts, "internalhost", "i", "Host part to be considered as internal")
 	pflag.BoolVar(&config.NoCSVHeader, "no-csv-header", false, "Omit CSV header line")
 	pflag.BoolVarP(&config.JSONOutput, "json", "J", false, "Output in JSON format")
@@ -200,6 +202,10 @@ func main() {
 	}
 	threadManager := make(chan bool, maxThreads-1)
 
+	if config.SliceSize < 10 {
+		config.SliceSize = 10
+	}
+
 	mails.CreateDateTime = time.Now()
 	mails.CreateDateTimeUnix = mails.CreateDateTime.Unix()
 	mails.CreateDate = mails.CreateDateTime.Format("2006-01-02")
@@ -214,7 +220,7 @@ func main() {
 
 	if lb.Len() > 0 {
 		for lb.Len() > 0 {
-			lines, linesErr := lb.PopSlice(100)
+			lines, linesErr := lb.PopSlice(config.SliceSize)
 			if linesErr != nil {
 				stdErr.Printf("Could not pop log lines: %s\n", linesErr)
 				continue
@@ -230,7 +236,7 @@ func main() {
 
 	if mb.Len() > 0 {
 		for mb.Len() > 0 {
-			mailSlice, mailSliceErr := mb.PopSlice(100)
+			mailSlice, mailSliceErr := mb.PopSlice(config.SliceSize)
 			if mailSliceErr != nil {
 				stdErr.Printf("Could nor pop mails: %s\n", mailSliceErr)
 				continue
