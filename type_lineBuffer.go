@@ -11,7 +11,7 @@ type lineBuffer struct {
 	lines []logLine
 }
 
-// Push stores a new logLine in the lineBuffer.
+// Push stores a new logLine at the end of the lineBuffer.
 func (lb *lineBuffer) Push(line logLine) error {
 	lb.mutex.Lock()
 	lb.lines = append(lb.lines, line)
@@ -19,7 +19,7 @@ func (lb *lineBuffer) Push(line logLine) error {
 	return nil
 }
 
-// PushSlice stores a number of new logLines in the lineBuffer.
+// PushSlice stores a number of new logLines at the end of the lineBuffer.
 func (lb *lineBuffer) PushSlice(lines []logLine) error {
 	lb.mutex.Lock()
 	for _, line := range lines {
@@ -29,7 +29,33 @@ func (lb *lineBuffer) PushSlice(lines []logLine) error {
 	return nil
 }
 
-// Pop retrieves an element of the lineBuffer.
+// PopSlice retrieves a number of elements off the end of the lineBuffer.
+func (lb *lineBuffer) PopSlice(elements int) ([]logLine, error) {
+	var logLines []logLine
+
+	if elements < 1 {
+		return logLines, fmt.Errorf("need to fetch at least 1 element")
+	}
+
+	lb.mutex.Lock()
+	lineCount := len(lb.lines)
+	if lineCount < 1 {
+		lb.mutex.Unlock()
+		return logLines, fmt.Errorf("no elements in buffer")
+	}
+	if elements < lineCount {
+		start := lineCount - elements
+		logLines = lb.lines[start:]
+		lb.lines = lb.lines[:start]
+	} else {
+		logLines = lb.lines
+		lb.lines = lb.lines[:0]
+	}
+	lb.mutex.Unlock()
+	return logLines, nil
+}
+
+// Pop retrieves an element off the end of the lineBuffer.
 func (lb *lineBuffer) Pop() (logLine, error) {
 	lb.mutex.Lock()
 	n := len(lb.lines) - 1
