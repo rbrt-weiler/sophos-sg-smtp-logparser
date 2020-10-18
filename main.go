@@ -27,7 +27,7 @@ import (
 
 const (
 	toolName    string = "Sophos SG SMTP Logfile Parser"
-	toolVersion string = "1.3.1-multithread"
+	toolVersion string = "1.4.0"
 	toolID      string = toolName + "/" + toolVersion
 	toolURL     string = "https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser"
 )

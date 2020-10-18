@@ -77,6 +77,32 @@ done
 
 ## Results
 
+### 2020-10-18, SSSLP v1.4.0
+
+I ran the test on Oct 18th, 2020 on a shared server. 6-Core Xeon Gold 6140, 32 GB RAM and SSD-based storage as dedicated (by means of KVM) resources; the same server as on Jul 19th, 2020. Running on 50% base CPU load due to other services. Ubuntu 20.04 with SSSLP v1.4.0.
+
+Worst CSV mode results:
+
+| File | Real | User | Sys |
+| --- | ---:| ---:| ---:|
+| sophos-sg-smtp-000003.log | 0m0.005s | 0m0.002s | 0m0.006s |
+| sophos-sg-smtp-000030.log | 0m0.006s | 0m0.003s | 0m0.006s |
+| sophos-sg-smtp-000300.log | 0m0.014s | 0m0.019s | 0m0.010s |
+| sophos-sg-smtp-003000.log | 0m0.088s | 0m0.155s | 0m0.043s |
+| sophos-sg-smtp-030000.log | 0m0.758s | 0m1.703s | 0m0.120s |
+| sophos-sg-smtp-300000.log | 0m6.803s | 0m16.751s | 0m0.666s |
+
+Worst JSON mode results:
+
+| File | Real | User | Sys |
+| --- | ---:| ---:| ---:|
+| sophos-sg-smtp-000003.log | 0m0.004s | 0m0.005s | 0m0.002s |
+| sophos-sg-smtp-000030.log | 0m0.007s | 0m0.009s | 0m0.000s |
+| sophos-sg-smtp-000300.log | 0m0.022s | 0m0.024s | 0m0.000s |
+| sophos-sg-smtp-003000.log | 0m0.147s | 0m0.242s | 0m0.037s |
+| sophos-sg-smtp-030000.log | 0m1.139s | 0m2.113s | 0m0.180s |
+| sophos-sg-smtp-300000.log | 0m10.562s | 0m20.878s | 0m1.348s |
+
 ### 2020-07-19, SSSLP v1.0.0
 
 I ran the test on Jul 19th, 2020 on a shared server. 6-Core Xeon Gold 6140, 32 GB RAM and SSD-based storage as dedicated (by means of KVM) resources. Running on 50% base CPU load due to other services. Fedora 31 with SSSLP v1.0.0.

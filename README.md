@@ -12,12 +12,13 @@ SSSLP aims to help administrators who are requested to analyze e-mail traffic. I
 `SSSLP -h`:
 
 ```text
-Available options:
   -Z, --compress-outfile      Compress output (with -o)
   -i, --internalhost string   Host part to be considered as internal
   -J, --json                  Output in JSON format
       --no-csv-header         Omit CSV header line
   -o, --outfile string        File to write data to instead of stdout
+      --slicesize int         Size of internal parsing slices (default 100)
+      --sparethreads int      Threads to keep free for other programs (default 2)
       --version               Print version information and exit
 ```
 
@@ -175,9 +176,13 @@ This tool uses Go modules to handle dependencies. If you cannot use Go modules, 
 
 ## Running / Compiling
 
-Use `go run ./...` to run the tool directly or `go build -o SSSLP ./...` to compile a binary. Prebuilt binaries may be available as artifacts from the GitLab CI/CD [pipeline for tagged releases](https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/pipelines?scope=tags).
+Use `go run ./...` to run the tool directly or `go build -o SSSLP ./...` to compile a binary.
 
-Tested with [go1.14](https://golang.org/doc/go1.14).
+Alternatively, Docker can be used to compile binaries by running `docker run --rm -v $PWD:/go/src -w /go/src golang:1.15 go build -o SSSLP ./...`. By passing the `GOOS` and `GOARCH` environment variables (via `-e`) this also enables cross compiling using Docker.
+
+Prebuilt binaries may be available as artifacts from the GitLab CI/CD [pipeline for tagged releases](https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/pipelines?scope=tags).
+
+Tested with [go1.15](https://golang.org/doc/go1.15).
 
 ## Source
 
