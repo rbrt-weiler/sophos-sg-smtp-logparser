@@ -29,6 +29,32 @@ func (mb *mailBuffer) PushSlice(mails []singleMail) error {
 	return nil
 }
 
+// PopSlice retrieves a number of elements off the end of the mailBuffer.
+func (mb *mailBuffer) PopSlice(elements int) ([]singleMail, error) {
+	var mails []singleMail
+
+	if elements < 1 {
+		return mails, fmt.Errorf("need to fetch at least 1 element")
+	}
+
+	mb.mutex.Lock()
+	mailCount := len(mb.mails)
+	if mailCount < 1 {
+		mb.mutex.Unlock()
+		return mails, fmt.Errorf("no elements in buffer")
+	}
+	if elements < mailCount {
+		start := mailCount - elements
+		mails = mb.mails[start:]
+		mb.mails = mb.mails[:start]
+	} else {
+		mails = mb.mails
+		mb.mails = mb.mails[:0]
+	}
+	mb.mutex.Unlock()
+	return mails, nil
+}
+
 // Pop retrieves an element off the end of the mailBuffer.
 func (mb *mailBuffer) Pop() (singleMail, error) {
 	mb.mutex.Lock()
