@@ -8,7 +8,7 @@ Everyone is welcome to contribute to the project. Contributions may be anything 
 
 being the basics.
 
-## Bug Reports
+## :bug: Bug Reports
 
 _TL;DR: Is it really a bug? --> Has nobody else already reported it? --> Does it still exist in the most current version? --> File a helpful issue._
 
@@ -21,17 +21,19 @@ If no issue exists that describes the bug you have encountered, please ensure th
 In case that the latest working version of the software still cotains the bug you have found, please [file an issue][NewIssue]. When creating the new issue, adhere to the following guidelines:
 
 * The title SHOULD already give a hint on what functionality is broken.
-* The description MUST contain a description of what you have tried to accomplish and how you wanted to accomplish it.
+* The description MUST contain a description of
+  * what you have tried to accomplish and
+  * how you wanted to accomplish it.
 * That description MUST be extensive and precise enough to reproduce your activities.
-* The description MUST contain all relevant version numbers, at least:
-  * Version of the software that showed the buggy behaviour.
-  * Version of the XMC installation that was interacted with.
+* The description MUST contain all relevant version numbers, at least
+  * the version of SSSLP and
+  * the version of the Sophos installation that generated the logs to be analyzed.
 * The description SHOULD cotain a statement that you have followed above test instructions.
   * For absolute clarity, please include Go version and commit IDs.
 
 After the bug report has been filed, it will be reviewed by the code owner(s). All further communication will be handled via the issue comments.
 
-## Suggestions
+## :bulb: Suggestions
 
 _TL;DR: Is the functionality missing from the latest development version? --> Has nobody else already suggested it? --> File a helpful issue._
 
@@ -48,7 +50,7 @@ Should there be no issue suggesting the functionality you are looking for, go ah
 
 After the suggestion has been filed, it will be reviewed by the code owner(s). All further communication will be handled via the issue comments.
 
-## Updating Code
+## :memo: Updating Code
 
 _TL;DR: Fork the repository. --> Develop bugfix/feature in own branch. --> Send merge request against master._
 
@@ -56,10 +58,10 @@ Whether it is a bug or a feature, if you are able to satisfy your own needs by c
 
 Here are some general guidelines for contributing code to the project:
 
-* The master branch is where development starts and ends.
-* Your master branch should always be up-to-date with the upstream master branch.
-* Every bugfix/feature should be developed in its own branch to simplify merge requests.
-* Merge requests must be filed against the master branch; merge requests that target other branches will be dismissed.
+* The master branch IS where development starts and ends.
+* Your master branch SHOULD always be up-to-date with the upstream master branch.
+* Every bugfix/feature SHOULD be developed in its own branch to simplify merge requests.
+* Merge requests MUST be filed against the master branch; merge requests that target other branches will be dismissed.
 
 Please keep in mind that every line of code contributed to the project will be licensed under [the project's license][ProjectLicense]. After receiving the merge request, the code owner(s) will review it. All further communication will be handled via the merge request comments.
 

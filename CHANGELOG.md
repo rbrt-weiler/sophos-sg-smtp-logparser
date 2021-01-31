@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
-(Nothing at this point.)
+### Changed
+
+1. Minor clarifications and corrections to the contributing guide.
 
 ## [1.4.0] - 2020-10-18
 
