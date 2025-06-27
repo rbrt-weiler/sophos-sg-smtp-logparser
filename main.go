@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -64,6 +65,7 @@ type appConfig struct {
 	JSONOutput     bool
 	OutfileName    string
 	CompressOutput bool
+	CreateTestdata bool
 	PrintVersion   bool
 }
 
@@ -96,6 +98,9 @@ var (
 	reQueueID    = regexp.MustCompile(`\squeueid="(.+?)"\s?`)
 )
 
+//go:embed embedded-testdata.txt
+var embedFS embed.FS
+
 /*
  #######  ########  ######## ####  #######  ##    ##    ########     ###    ########   ######  #### ##    ##  ######
 ##     ## ##     ##    ##     ##  ##     ## ###   ##    ##     ##   ## ##   ##     ## ##    ##  ##  ###   ## ##    ##
@@ -115,6 +120,7 @@ func parseCLIOptions() {
 	pflag.BoolVarP(&config.JSONOutput, "json", "J", false, "Output in JSON format")
 	pflag.StringVarP(&config.OutfileName, "outfile", "o", "", "File to write data to instead of stdout")
 	pflag.BoolVarP(&config.CompressOutput, "compress-outfile", "Z", false, "Compress output (with -o)")
+	pflag.BoolVar(&config.CreateTestdata, "create-testdata", false, "Create test data")
 	pflag.BoolVar(&config.PrintVersion, "version", false, "Print version information and exit")
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "%s\n", toolID)
@@ -152,6 +158,26 @@ func parseCLIOptions() {
 ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######
 */
 
+func createTestData() (int, error) {
+	baseContent, _ := embedFS.ReadFile("embedded-testdata.txt")
+	multipliers := []int{1, 10, 100, 1000, 10000, 100000}
+
+	for _, multiplier := range multipliers {
+		filename := fmt.Sprintf("testdata-%06d.log", multiplier*3)
+		content := []byte{}
+		for multiplier != 0 {
+			content = append(content, baseContent...)
+			multiplier--
+		}
+		errCode, err := writeOutfile(filename, string(content))
+		if err != nil {
+			return errCode, err
+		}
+	}
+
+	return 0, nil
+}
+
 // isValidEmail returns true if address is a valid e-mail address, else false.
 func isValidEmail(address string) bool {
 	return reValidEmail.MatchString(address)
@@ -185,6 +211,15 @@ func main() {
 
 	if config.PrintVersion {
 		fmt.Println(toolID)
+		os.Exit(errSuccess)
+	}
+
+	if config.CreateTestdata {
+		errCode, outErr := createTestData()
+		if outErr != nil {
+			stdErr.Printf("%s\n", outErr)
+			os.Exit(errCode)
+		}
 		os.Exit(errSuccess)
 	}
 

@@ -1,0 +1,24 @@
+2020:07:18-16:56:31 some-sg exim-in[24020]: logfoo P=esmtp
+2020:07:18-16:56:31 some-sg smtpd[4020]: QMGR[4020]: logfoo moved to work queue
+2020:07:18-16:56:31 some-sg smtpd[14020]: SCANNER[14020]: logfoo P=INPUT
+2020:07:18-16:56:31 some-sg smtpd[14020]: SCANNER[14020]: id="1000" severity="info" sys="SecureMail" sub="smtp" name="email passed" srcip="10.1.2.3" from="someone@example.com" to="someone@else.example.com" subject="Some e-mail conversation" queueid="1abCdE-0a6b1f-A4" size="587538"
+2020:07:18-16:56:31 some-sg smtpd[14020]: SCANNER[14020]: logfoo T=SCANNER
+2020:07:18-16:56:31 some-sg smtpd[14020]: SCANNER[14020]: logfoo Completed
+2020:07:18-16:56:31 some-sg exim-out[1420]: logfoo T=static_smtp
+2020:07:18-16:56:31 some-sg exim-out[1420]: logfoo Completed
+2020:07:18-16:56:31 some-sg exim-in[24021]: logfoo P=esmtp
+2020:07:18-16:56:31 some-sg smtpd[4021]: QMGR[4021]: logfoo moved to work queue
+2020:07:18-16:56:31 some-sg smtpd[14021]: SCANNER[14021]: logfoo P=INPUT
+2020:07:18-17:12:15 some-sg smtpd[14021]: SCANNER[14021]: id="1000" severity="info" sys="SecureMail" sub="smtp" name="email passed" srcip="10.1.2.3" from="someone@else.example.com" to="someone@example.com" subject="Re: Some e-mail conversation" queueid="1abCdE-57b8f1-A5" size="89465"
+2020:07:18-16:56:31 some-sg smtpd[14021]: SCANNER[14021]: logfoo T=SCANNER
+2020:07:18-16:56:31 some-sg smtpd[14021]: SCANNER[14021]: logfoo Completed
+2020:07:18-16:56:31 some-sg exim-out[1421]: logfoo T=static_smtp
+2020:07:18-16:56:31 some-sg exim-out[1421]: logfoo Completed
+2020:07:18-16:56:31 some-sg exim-in[24022]: logfoo P=esmtp
+2020:07:18-16:56:31 some-sg smtpd[4022]: QMGR[4022]: logfoo moved to work queue
+2020:07:18-16:56:31 some-sg smtpd[14022]: SCANNER[14022]: logfoo P=INPUT
+2020:07:18-17:14:29 some-sg smtpd[14022]: SCANNER[14022]: id="1000" severity="info" sys="SecureMail" sub="smtp" name="email passed" srcip="10.1.2.3" from="someone@outside.example.com" to="someone@example.com" subject="Just letting you know" queueid="1abCdE-2baf9d-A6" size="56264"
+2020:07:18-16:56:31 some-sg smtpd[14022]: SCANNER[14022]: logfoo T=SCANNER
+2020:07:18-16:56:31 some-sg smtpd[14022]: SCANNER[14022]: logfoo Completed
+2020:07:18-16:56:31 some-sg exim-out[1422]: logfoo T=static_smtp
+2020:07:18-16:56:31 some-sg exim-out[1422]: logfoo Completed
