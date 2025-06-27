@@ -6,10 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+Nothing at this moment.
+
+## [1.5.0] - 2025-06-27
+
 ### Changed
 
 1. Minor clarifications and corrections to the contributing guide.
 1. Change license from MIT to NCSA, see [LICENSE.txt](LICENSE.txt).
+1. Add ability to generate testdata from and for SSSLP.
 
 ## [1.4.0] - 2020-10-18
 
@@ -86,7 +91,8 @@ Initial public release.
 1. Support for JSON output.
 1. Support for defining internal hosts.
 
-[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.4.0...master
+[Unreleased]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.5.0...master
+[1.5.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.4.0...v1.5.0
 [1.4.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.3.1...v1.4.0
 [1.3.1]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.3.0...v1.3.1
 [1.3.0]: https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/-/compare/v1.2.2...v1.3.0

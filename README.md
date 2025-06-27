@@ -12,7 +12,26 @@ SSSLP aims to help administrators who are requested to analyze e-mail traffic. I
 `SSSLP -h`:
 
 ```text
+Sophos SG SMTP Logfile Parser/1.5.0
+https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser
+
+This tool parses a number of Sophos SG SMTP logfiles (uncompressed and
+gzip'ed) and provides an overview of the e-mails sent and received. It
+supports two output formats:
+
+- CSV (the default) provides a CSV-styled list of communication partners
+  and their associated mail volume (count and bytes). It is intended to
+  give administrators a quick overview of the mail traffic.
+- JSON provides a very detailed representation of the e-mails sent between
+  communication partners. It is intended to be used by another program.
+
+Regular output is printed to stdout, everything else is printed to stderr.
+
+Usage: sophos-sg-smtp-logparser [options] logfile...
+
+Available options:
   -Z, --compress-outfile      Compress output (with -o)
+      --create-testdata       Create test data
   -i, --internalhost string   Host part to be considered as internal
   -J, --json                  Output in JSON format
       --no-csv-header         Omit CSV header line
@@ -178,11 +197,11 @@ This tool uses Go modules to handle dependencies. If you cannot use Go modules, 
 
 Use `go run ./...` to run the tool directly or `go build -o SSSLP ./...` to compile a binary.
 
-Alternatively, Docker can be used to compile binaries by running `docker run --rm -v $PWD:/go/src -w /go/src golang:1.15 go build -o SSSLP ./...`. By passing the `GOOS` and `GOARCH` environment variables (via `-e`) this also enables cross compiling using Docker.
+Alternatively, Docker can be used to compile binaries by running `docker run --rm -v $PWD:/go/src -w /go/src golang:1.24 go build -o SSSLP ./...`. By passing the `GOOS` and `GOARCH` environment variables (via `-e`) this also enables cross compiling using Docker.
 
 Prebuilt binaries may be available as artifacts from the GitLab CI/CD [pipeline for tagged releases](https://gitlab.com/rbrt-weiler/sophos-sg-smtp-logparser/pipelines?scope=tags).
 
-Tested with [go1.15](https://golang.org/doc/go1.15).
+Tested with [go1.24](https://golang.org/doc/go1.24).
 
 ## Source
 
